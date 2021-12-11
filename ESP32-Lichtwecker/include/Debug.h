@@ -20,15 +20,17 @@ void DebugPrintFunction(DebugPrefix_t DebugPrefix,
 
 #define CLI_NL "\r\n"
 
-#define DEBUG_PREFIX_MAIN "[MAIN] "
-#define DEBUG_PREFIX_WIFI "[WIFI] "
-#define DEBUG_PREFIX_SNTP "[SNTP] "
+#define DEBUG_PREFIX_MAIN	"[MAIN] "
+#define DEBUG_PREFIX_WIFI	"[WIFI] "
+#define DEBUG_PREFIX_SNTP	"[SNTP] "
+#define DEBUG_PREFIX_LED	"[LED] "
 
 #define DEBUG_MSG_MAIN (DebugPrefixes[0])
 #define DEBUG_MSG_WIFI (DebugPrefixes[1])
 #define DEBUG_MSG_SNTP (DebugPrefixes[2])
+#define DEBUG_MSG_LED (DebugPrefixes[3])
 
-extern DebugPrefix_t DebugPrefixes[3];
+extern DebugPrefix_t DebugPrefixes[4];
 
 
 #endif
