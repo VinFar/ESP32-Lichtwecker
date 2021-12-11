@@ -47,6 +47,9 @@ wl_status_t WifiGetStatus(){
 static void WifiConnectedCallback(){
   WifiStatus=WL_CONNECTED;
   DEBUG_PRINT("WiFi Connected\n");
+  DEBUG_PRINT("SSID: %s" CLI_NL,WiFi.SSID());
+  IPAddress ip = WiFi.softAPIP();
+  DEBUG_PRINT("IP Address: %s" CLI_NL,ip.toString());
   xTaskCreatePinnedToCore(TaskSNTP,"TaskSNTP",4000,NULL,1,NULL,CONFIG_ARDUINO_RUNNING_CORE);
 }
 
