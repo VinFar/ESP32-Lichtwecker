@@ -22,7 +22,7 @@ void TaskSNTP(void *arg)
     {
         if (!getLocalTime(&dt))
         {
-            DEBUG_PRINT("Failed to obtain time" CLI_NL);
+            DEBUG_PRINT("Failed to obtain time. Retrying..." CLI_NL);
             vTaskDelay(pdMS_TO_TICKS(1000));
         }
         else
