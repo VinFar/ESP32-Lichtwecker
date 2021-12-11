@@ -2,9 +2,9 @@
 
 #ifdef DEBUG
 
-DebugPrefix_t DebugPrefixes[1] = { { 1, DEBUG_PREFIX_MAIN }};
+DebugPrefix_t DebugPrefixes[3] = { { 1, DEBUG_PREFIX_MAIN },{1,DEBUG_PREFIX_WIFI},{1,DEBUG_PREFIX_SNTP}};
 
-size_t DebugPrintFunction(DebugPrefix_t DebugPrefix,
+void DebugPrintFunction(DebugPrefix_t DebugPrefix,
 		const char *format, ...) {
 	if (DebugPrefix.Enabled) {
 		Serial.print(DebugPrefix.DebugPrefix);
@@ -18,13 +18,13 @@ size_t DebugPrintFunction(DebugPrefix_t DebugPrefix,
     va_end(copy);
     if(len < 0) {
         va_end(arg);
-        return 0;
+        return;
     };
     if(len >= sizeof(loc_buf)){
         temp = (char*) malloc(len+1);
         if(temp == NULL) {
             va_end(arg);
-            return 0;
+            return;
         }
         len = vsnprintf(temp, len+1, format, arg);
     }
@@ -33,9 +33,9 @@ size_t DebugPrintFunction(DebugPrefix_t DebugPrefix,
     if(temp != loc_buf){
         free(temp);
     }
-    return len;
+    return;
 	}
-	return 0;
+	return;
 }
 
 #endif
