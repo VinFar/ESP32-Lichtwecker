@@ -2,6 +2,7 @@
 #include "IPAddress.h"
 #include "Debug.h"
 #include "myRTC.h"
+#include "WebServerUI.h"
 
 #define DEBUG_MSG DEBUG_MSG_WIFI
 
@@ -50,6 +51,7 @@ static void WifiConnectedCallback(){
   DEBUG_PRINT("SSID: %s" CLI_NL,WiFi.SSID());
   IPAddress ip = WiFi.softAPIP();
   DEBUG_PRINT("IP Address: %s" CLI_NL,ip.toString());
+  xTaskCreatePinnedToCore(TaskWebUI,"TaskWebUI",4000,NULL,1,NULL,CONFIG_ARDUINO_RUNNING_CORE);
   xTaskCreatePinnedToCore(TaskSNTP,"TaskSNTP",4000,NULL,1,NULL,CONFIG_ARDUINO_RUNNING_CORE);
 }
 
