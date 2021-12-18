@@ -20,7 +20,7 @@ void TaskWifi(void *arg){
     
     DEBUG_PRINT("Created TaskWifi\n");
 
-    WifiManager.setDebugOutput(false);
+    WifiManager.setDebugOutput(true);
     WifiManager.autoConnect("Lichtwecker");
     DEBUG_PRINT("Trying to connect...\n");
     WifiManager.setAPCallback(configModeCallback);
@@ -49,8 +49,9 @@ static void WifiConnectedCallback(){
   WifiStatus=WL_CONNECTED;
   DEBUG_PRINT("WiFi Connected\n");
   DEBUG_PRINT("SSID: %s" CLI_NL,WiFi.SSID());
-  IPAddress ip = WiFi.softAPIP();
-  DEBUG_PRINT("IP Address: %s" CLI_NL,ip.toString());
+  IPAddress ip = WiFi.localIP();
+  DEBUG_PRINT("IP Address: %d.%d.%d.%d" CLI_NL,ip[0],ip[1],ip[2],ip[3]);
+  vTaskDelay(pdMS_TO_TICKS(1000));
   xTaskCreatePinnedToCore(TaskWebUI,"TaskWebUI",4000,NULL,1,NULL,CONFIG_ARDUINO_RUNNING_CORE);
   xTaskCreatePinnedToCore(TaskSNTP,"TaskSNTP",4000,NULL,1,NULL,CONFIG_ARDUINO_RUNNING_CORE);
 }
