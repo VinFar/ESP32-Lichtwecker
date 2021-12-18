@@ -5,6 +5,6 @@
 #include "Debug.h"
 #include <Arduino.h>
 
-
+#define ARRAY_LEN(x) (sizeof(x)/sizeof(x[0]))
 
 #endif
