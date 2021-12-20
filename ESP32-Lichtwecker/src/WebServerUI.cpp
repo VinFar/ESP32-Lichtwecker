@@ -27,6 +27,8 @@ void TaskWebUI(void *arg)
   ESPUI.begin("ESPUI Control");
   DEBUG_PRINT("Started WebUI" CLI_NL);
 
+  WebUiAlarmSwitchUpdateAll();
+
   while (1)
   {
     dnsServer.processNextRequest();

@@ -16,11 +16,11 @@ enum WeekDay{
 
 typedef struct
 {
-    const enum WeekDay WeekDay;
-    const char WeekDayString[15];
+    enum WeekDay WeekDay;
+    char WeekDayString[15];
     uint8_t Hour;
     uint8_t Minute;
-    uint8_t AlarmOnOff;
+    bool AlarmOnOff;
     float AlarmMaxLight;
     uint32_t AlarmDuration;
     uint16_t EspUiControl;
