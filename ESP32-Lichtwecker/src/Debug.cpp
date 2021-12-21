@@ -2,7 +2,7 @@
 
 #ifdef DEBUG
 
-DebugPrefix_t DebugPrefixes[5] = {{1, DEBUG_PREFIX_MAIN}, {1, DEBUG_PREFIX_WIFI}, {1, DEBUG_PREFIX_SNTP}, {1, DEBUG_PREFIX_LED},{1, DEBUG_PREFIX_WEBUI}};
+DebugPrefix_t DebugPrefixes[6] = {{1, DEBUG_PREFIX_MAIN}, {1, DEBUG_PREFIX_WIFI}, {1, DEBUG_PREFIX_SNTP}, {1, DEBUG_PREFIX_LED},{1, DEBUG_PREFIX_WEBUI},{1,DEBUG_PREFIX_ALARMS}};
 
 void DebugPrintFunction(DebugPrefix_t DebugPrefix,
                         const char *format, ...)

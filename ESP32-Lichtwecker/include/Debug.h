@@ -16,6 +16,7 @@ void DebugPrintFunction(DebugPrefix_t DebugPrefix,
 
 #ifdef DEBUG
 #define DEBUG_PRINT(fmt, ...) DebugPrintFunction(DEBUG_MSG,fmt,##__VA_ARGS__)
+#define DEBUG_PRINT_WOP(fmt, ...) DebugPrintFunction(DEBUG_MSG,fmt,##__VA_ARGS__)
 #endif
 
 #define CLI_NL "\r\n"
@@ -25,14 +26,16 @@ void DebugPrintFunction(DebugPrefix_t DebugPrefix,
 #define DEBUG_PREFIX_SNTP		"[SNTP] "
 #define DEBUG_PREFIX_LED		"[LED] "
 #define DEBUG_PREFIX_WEBUI		"[WEBUI] "
+#define DEBUG_PREFIX_ALARMS		"[ALARMS] "
 
 #define DEBUG_MSG_MAIN (DebugPrefixes[0])
 #define DEBUG_MSG_WIFI (DebugPrefixes[1])
 #define DEBUG_MSG_SNTP (DebugPrefixes[2])
 #define DEBUG_MSG_LED (DebugPrefixes[3])
 #define DEBUG_MSG_WEBUI (DebugPrefixes[4])
+#define DEBUG_MSG_ALARMS (DebugPrefixes[5])
 
-extern DebugPrefix_t DebugPrefixes[5];
+extern DebugPrefix_t DebugPrefixes[6];
 
 
 #endif

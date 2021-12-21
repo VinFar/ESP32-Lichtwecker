@@ -3,6 +3,7 @@
 
 #include "time.h"
 #include "main.h"
+#include "Preferences.h"
 
 enum WeekDay{
     Monday=0,
@@ -26,8 +27,12 @@ typedef struct
     uint16_t EspUiControl;
 } Alarm_t;
 
+extern Alarm_t Alarms[7];
+extern Preferences prefs;
+extern const char* AlarmPrefsNameSpace;
 
 
+void AlarmTaskInitPrefs();
 
 
 #endif

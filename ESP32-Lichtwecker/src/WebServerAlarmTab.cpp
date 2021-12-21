@@ -10,8 +10,6 @@ static const char *WebUiAlarmTabName = "Wecker Einstellungen";
 static const char *WebUiAlarmOnOffButtonLabel = "Wecker Ein/Aus";
 static const char *WebUiAlarmAddAlarm = "Wecker hinzufügen";
 
-Alarm_t Alarms[7] = {{Monday, "Montag"}, {Tuesday, "Dienstag"}, {Wednesday, "Mittwoch"}, {Thursday, "Donnerstag"}, {Friday, "Freitag"}, {Saturday, "Samstag"}, {Sunday, "Sonntag"}};
-
 static void AlarmOnOffSwitchCallback(Control *Button, int value);
 static void AlarmAddButtonClickCallback(Control *Button, int type);
 static void WebUiAddAlarm(Alarm_t *Alarm);
@@ -32,35 +30,39 @@ void WebUiAlarmTabInit()
 
 static void AlarmOnOffSwitchCallback(Control *Button, int value)
 {
+  uint8_t idx = WebUiAlarmGetIndexById(Button->id);
+  if(!prefs.begin(AlarmPrefsNameSpace,false)){
+    DEBUG_PRINT("Could not open NameSpace" CLI_NL);
+  }
   switch (value)
   {
   case S_ACTIVE:
-    DEBUG_PRINT("Alarm on for");
+    Alarms[idx].AlarmOnOff = 1;
+    DEBUG_PRINT("Alarm %s for %s" CLI_NL, Alarms[idx].AlarmOnOff?"on":"off",Alarms[idx].WeekDayString);
     break;
 
   case S_INACTIVE:
-    DEBUG_PRINT("Alarm off for");
+    Alarms[idx].AlarmOnOff = 0;
+    DEBUG_PRINT("Alarm %s for %s" CLI_NL,Alarms[idx].AlarmOnOff?"on":"off" ,Alarms[idx].WeekDayString);
     break;
   }
-
-  Alarm_t Alarm;
-  memset(&Alarm, 0, sizeof(Alarm));
-  WebUiAlarmGetInstanceById(Button->id, &Alarm);
-  DEBUG_PRINT("%s" CLI_NL, Alarm.WeekDayString);
-
+  if(!prefs.putBytes(AlarmPrefsNameSpace,&Alarms,sizeof(Alarms))){
+    DEBUG_PRINT("Could not write Namespace %s" CLI_NL,AlarmPrefsNameSpace);
+  }
+  prefs.end();
+    
 }
 
-void WebUiAlarmGetInstanceById(uint16_t id, Alarm_t *Alarm)
+uint8_t WebUiAlarmGetIndexById(uint16_t id)
 {
   for (int i = 0; i < ARRAY_LEN(Alarms); i++)
   {
     if (id == Alarms[i].EspUiControl)
     {
-      *Alarm = Alarms[i];
-      return;
+      return i;
     }
   }
-  return;
+  return 0;
 }
 
 static void WebUiAddAlarm(Alarm_t *Alarm)
@@ -80,7 +82,7 @@ void WebUiAlarmSwitchUpdateAll()
 {
   for (int i = 0; i < ARRAY_LEN(Alarms); i++)
   {
-    WebUiAlarmSwitchSetState(Alarms[i],Alarms[i].AlarmOnOff);
+    WebUiAlarmSwitchSetState(Alarms[i], Alarms[i].AlarmOnOff);
   }
 }
 
