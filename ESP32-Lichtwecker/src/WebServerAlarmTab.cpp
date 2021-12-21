@@ -13,6 +13,7 @@ static const char *WebUiAlarmAddAlarm = "Wecker hinzufügen";
 static void AlarmOnOffSwitchCallback(Control *Button, int value);
 static void AlarmAddButtonClickCallback(Control *Button, int type);
 static void WebUiAddAlarm(Alarm_t *Alarm);
+static void AlarmSelectedHours(Control *Select, int type);
 
 uint16_t WebUiAlarmTab;
 int AlarmOnOffSwitch;
@@ -31,26 +32,27 @@ void WebUiAlarmTabInit()
 static void AlarmOnOffSwitchCallback(Control *Button, int value)
 {
   uint8_t idx = WebUiAlarmGetIndexById(Button->id);
-  if(!prefs.begin(AlarmPrefsNameSpace,false)){
+  if (!prefs.begin(AlarmPrefsNameSpace, false))
+  {
     DEBUG_PRINT("Could not open NameSpace" CLI_NL);
   }
   switch (value)
   {
   case S_ACTIVE:
     Alarms[idx].AlarmOnOff = 1;
-    DEBUG_PRINT("Alarm %s for %s" CLI_NL, Alarms[idx].AlarmOnOff?"on":"off",Alarms[idx].WeekDayString);
+    DEBUG_PRINT("Alarm %s for %s" CLI_NL, Alarms[idx].AlarmOnOff ? "on" : "off", Alarms[idx].WeekDayString);
     break;
 
   case S_INACTIVE:
     Alarms[idx].AlarmOnOff = 0;
-    DEBUG_PRINT("Alarm %s for %s" CLI_NL,Alarms[idx].AlarmOnOff?"on":"off" ,Alarms[idx].WeekDayString);
+    DEBUG_PRINT("Alarm %s for %s" CLI_NL, Alarms[idx].AlarmOnOff ? "on" : "off", Alarms[idx].WeekDayString);
     break;
   }
-  if(!prefs.putBytes(AlarmPrefsNameSpace,&Alarms,sizeof(Alarms))){
-    DEBUG_PRINT("Could not write Namespace %s" CLI_NL,AlarmPrefsNameSpace);
+  if (!prefs.putBytes(AlarmPrefsNameSpace, &Alarms, sizeof(Alarms)))
+  {
+    DEBUG_PRINT("Could not write Namespace %s" CLI_NL, AlarmPrefsNameSpace);
   }
   prefs.end();
-    
 }
 
 uint8_t WebUiAlarmGetIndexById(uint16_t id)
@@ -70,6 +72,14 @@ static void WebUiAddAlarm(Alarm_t *Alarm)
   DEBUG_PRINT("Created Alarm Tab for %s" CLI_NL, Alarm->WeekDayString);
   uint16_t TabID = ESPUI.addControl(ControlType::Tab, Alarm->WeekDayString, Alarm->WeekDayString);
   Alarm->EspUiControl = ESPUI.addControl(ControlType::Switcher, WebUiAlarmOnOffButtonLabel, WebUiAlarmOnOffButtonLabel, ControlColor::Turquoise, TabID, &AlarmOnOffSwitchCallback);
+
+  uint16_t HoursSelect = ESPUI.addControl(ControlType::Select, "Stunde", "", ControlColor::Turquoise, TabID, &AlarmSelectedHours);
+  char HourString[3];
+  for (int i = 1; i <= 12; i++)
+  {
+    itoa(i, HourString, 10);
+    ESPUI.addControl(ControlType::Option, "12", "12", ControlColor::Alizarin, HoursSelect);
+  }
 }
 
 void WebUiAlarmSwitchSetState(const Alarm_t Alarm, const bool newState)
@@ -96,6 +106,20 @@ static void AlarmAddButtonClickCallback(Control *Button, int type)
   default:
     break;
   }
+}
+
+static void AlarmSelectedHours(Control *Select, int type)
+{
+
+  uint8_t idx = WebUiAlarmGetIndexById(Select->id);
+
+  Alarms[idx].Hour = type;
+
+  DEBUG_PRINT("Alarm hour for %s set to %d" CLI_NL, Alarms[idx].WeekDayString, Alarms[idx].Hour);
+
+  prefs.begin(AlarmPrefsNameSpace);
+  prefs.putBytes(AlarmPrefsNameSpace, &Alarms, sizeof(Alarms));
+  prefs.end();
 }
 
 #undef DEBUG_MSG
