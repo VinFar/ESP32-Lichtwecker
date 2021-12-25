@@ -24,6 +24,13 @@ void AlarmTaskInitPrefs(){
         DEBUG_PRINT("Could not open Prefs Namespace" CLI_NL);
     }
 
+    // if(!prefs.putBytes(AlarmPrefsNameSpace,&Alarms,sizeof(Alarms))){
+    //     DEBUG_PRINT("Could not write Alarms struct" CLI_NL);
+    // }else{
+    //     DEBUG_PRINT("Wrote Alarms struct" CLI_NL);
+    // }
+
+
     if(!prefs.getBytes(AlarmPrefsNameSpace,&Alarms,sizeof(Alarms))){
         DEBUG_PRINT("Could not Read Alarms struct" CLI_NL);
     }else{

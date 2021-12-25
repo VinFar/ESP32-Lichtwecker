@@ -19,6 +19,7 @@ void WebUiInitTabs();
 void TaskWebUI(void *arg)
 {
   DEBUG_PRINT("Created TaskWebUI" CLI_NL);
+  ESPUI.setVerbosity(Verbosity::VerboseJSON);
   dnsServer.start(DNS_PORT, "*", apIP);
 
   WebUiInitTabs();
