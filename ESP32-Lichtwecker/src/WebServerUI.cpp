@@ -11,7 +11,7 @@
 #define DEBUG_MSG DEBUG_MSG_WEBUI
 
 const byte DNS_PORT = 53;
-IPAddress apIP(192, 168, 0, 150);
+IPAddress apIP(192, 168, 0, 81);
 DNSServer dnsServer;
 
 void WebUiInitTabs();
@@ -19,7 +19,7 @@ void WebUiInitTabs();
 void TaskWebUI(void *arg)
 {
   DEBUG_PRINT("Created TaskWebUI" CLI_NL);
-  ESPUI.setVerbosity(Verbosity::VerboseJSON);
+  // ESPUI.setVerbosity(Verbosity::VerboseJSON);
   dnsServer.start(DNS_PORT, "*", apIP);
 
   WebUiInitTabs();
