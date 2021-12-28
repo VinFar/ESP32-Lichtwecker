@@ -5,15 +5,17 @@
 #include "main.h"
 #include "Preferences.h"
 
+#define SLEEP_TIME_NO_ALARM_S 300
+
 enum WeekDay
 {
-    Monday = 0,
-    Tuesday,
-    Wednesday,
-    Thursday,
-    Friday,
-    Saturday,
-    Sunday
+    Monday = 1,
+    Tuesday = 2,
+    Wednesday = 3,
+    Thursday = 4,
+    Friday = 5,
+    Saturday = 6,
+    Sunday = 0
 };
 
 typedef struct
@@ -30,13 +32,21 @@ typedef struct
         uint16_t EspUiControlSwitcher;
         uint16_t EspUiControlHour;
         uint16_t EspUiControlMinute;
-    }EspUiId;
+        uint16_t EspUiControlSaveButton;
+    } EspUiId;
 } Alarm_t;
 
 extern Alarm_t Alarms[7];
 extern Preferences prefs;
 extern const char *AlarmPrefsNameSpace;
+extern const char *AlarmPrefAlarmStatus;
 
 void AlarmTaskInitPrefs();
+void TaskAlarm(void *arg);
+bool AlarmStateGet();
+void AlarmStatusSet(bool NewState);
+bool *AlarmStatusGetAddress();
+int8_t AlarmStatusSaveToNvs();
+TaskHandle_t TaskAlarmGetTaskHandle();
 
 #endif

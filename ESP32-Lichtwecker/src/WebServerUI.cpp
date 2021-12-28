@@ -33,7 +33,7 @@ void TaskWebUI(void *arg)
   while (1)
   {
     dnsServer.processNextRequest();
-    vTaskDelay(pdMS_TO_TICKS(10));
+    vTaskDelay(pdMS_TO_TICKS(50));
   }
 }
 

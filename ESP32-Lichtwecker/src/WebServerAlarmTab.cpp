@@ -17,8 +17,10 @@ static void AlarmOnOffSwitchCallback(Control *Button, int value);
 static void AlarmAddButtonClickCallback(Control *Button, int type);
 static void WebUiAddAlarm(Alarm_t *Alarm);
 static void AlarmNumberInputCallback(Control *Select, int type);
+static void AlarmStatusSwitchCallback(Control *Button, int value);
 
 uint16_t WebUiAlarmTab;
+uint16_t WebUiAlarmStatusSwitcherId;
 int AlarmOnOffSwitch;
 
 void WebUiAlarmTabInit()
@@ -26,7 +28,7 @@ void WebUiAlarmTabInit()
   DEBUG_PRINT("Created Alarm Tab" CLI_NL);
 
   WebUiAlarmTab = ESPUI.addControl(ControlType::Tab, WebUiAlarmTabName, WebUiAlarmTabName);
-  ESPUI.addControl(ControlType::Switcher, WebUiAlarmOnOffButtonLabel, "+", ControlColor::Turquoise, WebUiAlarmTab, &AlarmOnOffSwitchCallback);
+  WebUiAlarmStatusSwitcherId=ESPUI.addControl(ControlType::Switcher, WebUiAlarmOnOffButtonLabel, "", ControlColor::Turquoise, WebUiAlarmTab, &AlarmStatusSwitchCallback);
   for (int i = 0; i < ARRAY_LEN(Alarms); i++)
   {
     WebUiAddAlarm(&Alarms[i]);
@@ -35,10 +37,10 @@ void WebUiAlarmTabInit()
 
 static void AlarmOnOffSwitchCallback(Control *Button, int value)
 {
-  uint8_t idx = WebUiAlarmGetIndexById(Button->id);
-  if (!prefs.begin(AlarmPrefsNameSpace, false))
+  int8_t idx = WebUiAlarmGetIndexById(Button->id);
+  if (idx < 0)
   {
-    DEBUG_PRINT("Could not open NameSpace" CLI_NL);
+    return;
   }
   switch (value)
   {
@@ -51,6 +53,13 @@ static void AlarmOnOffSwitchCallback(Control *Button, int value)
     Alarms[idx].AlarmOnOff = 0;
     DEBUG_PRINT("Alarm %s for %s" CLI_NL, Alarms[idx].AlarmOnOff ? "on" : "off", Alarms[idx].WeekDayString);
     break;
+  default:
+
+    break;
+  }
+  if (!prefs.begin(AlarmPrefsNameSpace, false))
+  {
+    DEBUG_PRINT("Could not open NameSpace" CLI_NL);
   }
   if (!prefs.putBytes(AlarmPrefsNameSpace, &Alarms, sizeof(Alarms)))
   {
@@ -59,21 +68,44 @@ static void AlarmOnOffSwitchCallback(Control *Button, int value)
   prefs.end();
 }
 
-uint8_t WebUiAlarmGetIndexById(uint16_t id)
+static void AlarmStatusSwitchCallback(Control *Button, int value)
+{
+
+  switch (value)
+  {
+  case S_ACTIVE:
+    AlarmStatusSet(true);
+    DEBUG_PRINT("Alarm Status on. Resuming TaskAlarm..." CLI_NL);
+    vTaskResume(TaskAlarmGetTaskHandle());
+    break;
+
+  case S_INACTIVE:
+    AlarmStatusSet(false);
+    DEBUG_PRINT("Alarm Status off" CLI_NL);
+    break;
+  default:
+
+    break;
+  }
+  AlarmStatusSaveToNvs();
+}
+
+int8_t WebUiAlarmGetIndexById(uint16_t id)
 {
   for (int i = 0; i < ARRAY_LEN(Alarms); i++)
   {
-    if (id == Alarms[i].EspUiId.EspUiControlHour || id == Alarms[i].EspUiId.EspUiControlMinute || id == Alarms[i].EspUiId.EspUiControlSwitcher)
+    if (id == Alarms[i].EspUiId.EspUiControlHour || id == Alarms[i].EspUiId.EspUiControlMinute || id == Alarms[i].EspUiId.EspUiControlSwitcher || id == Alarms[i].EspUiId.EspUiControlSaveButton)
     {
       return i;
     }
   }
-  return 0;
+  return -1;
 }
 
 static void WebUiAddAlarm(Alarm_t *Alarm)
 {
   DEBUG_PRINT("Created Alarm Tab for %s" CLI_NL, Alarm->WeekDayString);
+  DEBUG_PRINT("Alarm for %s set to %02d:%02dh. Alarm %s" CLI_NL, Alarm->WeekDayString, Alarm->Hour, Alarm->Minute, Alarm->AlarmOnOff ? "on" : "off");
   uint16_t TabID = ESPUI.addControl(ControlType::Tab, Alarm->WeekDayString, Alarm->WeekDayString);
   Alarm->EspUiId.EspUiControlSwitcher = ESPUI.addControl(ControlType::Switcher, WebUiAlarmOnOffButtonLabel, WebUiAlarmOnOffButtonLabel, ControlColor::Turquoise, TabID, &AlarmOnOffSwitchCallback);
 
@@ -81,16 +113,16 @@ static void WebUiAddAlarm(Alarm_t *Alarm)
   itoa(Alarm->Hour, TimeString, 10);
   uint16_t numberId = ESPUI.addControl(ControlType::Number, WebUiAlarmHoursLabel, TimeString, ControlColor::Turquoise, TabID, &AlarmNumberInputCallback);
   ESPUI.addControl(ControlType::Min, WebUiAlarmHoursLabel, "0", ControlColor::None, numberId);
-  ESPUI.addControl(ControlType::Max, WebUiAlarmHoursLabel, "24", ControlColor::None, numberId);
+  ESPUI.addControl(ControlType::Max, WebUiAlarmHoursLabel, "23", ControlColor::None, numberId);
   Alarm->EspUiId.EspUiControlHour = numberId;
 
   itoa(Alarm->Minute, TimeString, 10);
   numberId = ESPUI.addControl(ControlType::Number, "Minute", TimeString, ControlColor::Turquoise, TabID, &AlarmNumberInputCallback);
   ESPUI.addControl(ControlType::Min, "Minute", "0", ControlColor::None, numberId);
-  ESPUI.addControl(ControlType::Max, "Minute", "60", ControlColor::None, numberId);
+  ESPUI.addControl(ControlType::Max, "Minute", "59", ControlColor::None, numberId);
   Alarm->EspUiId.EspUiControlMinute = numberId;
 
-  ESPUI.addControl(ControlType::Button, WebUiAlarmSaveTime, "Speichern", ControlColor::Turquoise, TabID, &AlarmNumberInputCallback);
+  Alarm->EspUiId.EspUiControlSaveButton = ESPUI.addControl(ControlType::Button, WebUiAlarmSaveTime, "Speichern", ControlColor::Turquoise, TabID, &AlarmNumberInputCallback);
 }
 
 void WebUiAlarmSwitchSetState(const Alarm_t Alarm, const bool newState)
@@ -105,6 +137,7 @@ void WebUiAlarmSwitchUpdateAll()
   {
     WebUiAlarmSwitchSetState(Alarms[i], Alarms[i].AlarmOnOff);
   }
+  ESPUI.updateSwitcher(WebUiAlarmStatusSwitcherId, AlarmStateGet());
 }
 
 static void AlarmNumberInputCallback(Control *Select, int type)
@@ -133,14 +166,14 @@ static void AlarmNumberInputCallback(Control *Select, int type)
   }
   if (SavePrefs)
   {
+    DEBUG_PRINT("Saved Alarm time to NVS" CLI_NL);
+    DEBUG_PRINT("Alarm for %s set to %02d:%02d. IDX: %d" CLI_NL, Alarms[idx].WeekDayString, Alarms[idx].Hour, Alarms[idx].Minute, idx);
     prefs.begin(AlarmPrefsNameSpace);
     prefs.putBytes(AlarmPrefsNameSpace, &Alarms, sizeof(Alarms));
     prefs.end();
-    DEBUG_PRINT("Saved Alarm time to NVS" CLI_NL);
   }
   else
   {
-    DEBUG_PRINT("Alarm %s for %s set to %d:%d. IDX: %d" CLI_NL, Select->label, Alarms[idx].WeekDayString, Alarms[idx].Hour, Alarms[idx].Minute, idx);
   }
 }
 

@@ -8,6 +8,6 @@ void slider(Control *sender, int type);
 void WebUiAlarmTabInit();
 void WebUiAlarmSwitchSetState(const uint16_t Id, const bool newState);
 void WebUiAlarmSwitchUpdateAll();
-uint8_t WebUiAlarmGetIndexById(uint16_t id);
+int8_t WebUiAlarmGetIndexById(uint16_t id);
 
 #endif

@@ -19,6 +19,7 @@ void setup()
   LedWakeFanSetDutyCycle(100.0f);
   AlarmTaskInitPrefs();
   xTaskCreatePinnedToCore(TaskWifi,"TaskWifi",4000,NULL,1,NULL,CONFIG_ARDUINO_RUNNING_CORE);
+  
 }
 
 
