@@ -48,5 +48,6 @@ void AlarmStatusSet(bool NewState);
 bool *AlarmStatusGetAddress();
 int8_t AlarmStatusSaveToNvs();
 TaskHandle_t TaskAlarmGetTaskHandle();
+void AlarmSetLedPower(uint8_t Index,float DC);
 
 #endif

@@ -3,6 +3,7 @@
 #include <ESPUI.h>
 #include "WebServerAlarmTab.h"
 #include "AlarmTask.h"
+#include "myLED.h"
 
 #define DEBUG_MSG DEBUG_MSG_WEBUI
 
@@ -18,9 +19,13 @@ static void AlarmAddButtonClickCallback(Control *Button, int type);
 static void WebUiAddAlarm(Alarm_t *Alarm);
 static void AlarmNumberInputCallback(Control *Select, int type);
 static void AlarmStatusSwitchCallback(Control *Button, int value);
+static void AlarmLedPowerSliderCallback(Control *Select, int type);
+static void AlarmLedPowerTimeoutCallback(TimerHandle_t xTimer);
 
 uint16_t WebUiAlarmTab;
 uint16_t WebUiAlarmStatusSwitcherId;
+uint16_t WebUiAlarmLedPowerSlider;
+TimerHandle_t TimerLedPowerTimeoutHandle;
 int AlarmOnOffSwitch;
 
 void WebUiAlarmTabInit()
@@ -28,7 +33,11 @@ void WebUiAlarmTabInit()
   DEBUG_PRINT("Created Alarm Tab" CLI_NL);
 
   WebUiAlarmTab = ESPUI.addControl(ControlType::Tab, WebUiAlarmTabName, WebUiAlarmTabName);
-  WebUiAlarmStatusSwitcherId=ESPUI.addControl(ControlType::Switcher, WebUiAlarmOnOffButtonLabel, "", ControlColor::Turquoise, WebUiAlarmTab, &AlarmStatusSwitchCallback);
+  WebUiAlarmStatusSwitcherId = ESPUI.addControl(ControlType::Switcher, WebUiAlarmOnOffButtonLabel, "", ControlColor::Turquoise, WebUiAlarmTab, &AlarmStatusSwitchCallback);
+  WebUiAlarmLedPowerSlider = ESPUI.addControl(ControlType::Slider, "Lichtstärke", "", ControlColor::Alizarin, WebUiAlarmTab, &AlarmLedPowerSliderCallback);
+
+  TimerLedPowerTimeoutHandle = xTimerCreate("LedPowerTimeoutTimer", pdMS_TO_TICKS(5000), 0, (void *)0, AlarmLedPowerTimeoutCallback);
+
   for (int i = 0; i < ARRAY_LEN(Alarms); i++)
   {
     WebUiAddAlarm(&Alarms[i]);
@@ -175,6 +184,27 @@ static void AlarmNumberInputCallback(Control *Select, int type)
   else
   {
   }
+}
+
+static void AlarmLedPowerSliderCallback(Control *Select, int type)
+{
+  DEBUG_PRINT("LED Power Slider set t %d" CLI_NL, Select->value.toInt());
+  xTimerReset(TimerLedPowerTimeoutHandle, 0);
+  LedWakeSetDutyCycle(Select->value.toFloat());
+  for (int i = 0; i < ARRAY_LEN(Alarms); i++)
+  {
+    AlarmSetLedPower(i, Select->value.toFloat());
+  }
+}
+
+static void AlarmLedPowerTimeoutCallback(TimerHandle_t xTimer)
+{
+  LedWakeSetDutyCycle(0.0f);
+  DEBUG_PRINT("LED Power reset to 0" CLI_NL);
+  xTimerStop(xTimer, portMAX_DELAY);
+  prefs.begin(AlarmPrefsNameSpace);
+  prefs.putBytes(AlarmPrefsNameSpace, &Alarms, sizeof(Alarms));
+  prefs.end();
 }
 
 #undef DEBUG_MSG

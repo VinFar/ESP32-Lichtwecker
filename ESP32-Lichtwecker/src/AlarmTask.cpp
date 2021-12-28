@@ -196,4 +196,8 @@ int8_t AlarmStatusSaveToNvs()
     DEBUG_PRINT("Wrote Alarm Status to NVS" CLI_NL);
 }
 
+void AlarmSetLedPower(uint8_t Index,float DC){
+    Alarms[Index].AlarmMaxLight = DC;
+}
+
 #undef DEBUG_MSG

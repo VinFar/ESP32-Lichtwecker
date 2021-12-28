@@ -26,8 +26,7 @@ void LedWakeSetDutyCycle(float DutyCycle)
     }
 
     int DutyCycleValue = (int)((((float)(1 << LED_WAKE_RESOLUTION)) * DutyCycle) / 100.0f);
-    ledcWrite(LED_WAKE_CHANNEL,DutyCycleValue);
-    
+    ledcWrite(LED_WAKE_CHANNEL,DutyCycleValue);    
 }
 
 void LedWakeFanSetDutyCycle(float DutyCycle)
