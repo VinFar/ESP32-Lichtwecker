@@ -66,15 +66,7 @@ static void AlarmOnOffSwitchCallback(Control *Button, int value)
 
     break;
   }
-  if (!prefs.begin(AlarmPrefsNameSpace, false))
-  {
-    DEBUG_PRINT("Could not open NameSpace" CLI_NL);
-  }
-  if (!prefs.putBytes(AlarmPrefsNameSpace, &Alarms, sizeof(Alarms)))
-  {
-    DEBUG_PRINT("Could not write Namespace %s" CLI_NL, AlarmPrefsNameSpace);
-  }
-  prefs.end();
+  AlarmPrefsSaveToNvs();
 }
 
 static void AlarmStatusSwitchCallback(Control *Button, int value)
@@ -177,9 +169,7 @@ static void AlarmNumberInputCallback(Control *Select, int type)
   {
     DEBUG_PRINT("Saved Alarm time to NVS" CLI_NL);
     DEBUG_PRINT("Alarm for %s set to %02d:%02d. IDX: %d" CLI_NL, Alarms[idx].WeekDayString, Alarms[idx].Hour, Alarms[idx].Minute, idx);
-    prefs.begin(AlarmPrefsNameSpace);
-    prefs.putBytes(AlarmPrefsNameSpace, &Alarms, sizeof(Alarms));
-    prefs.end();
+    AlarmPrefsSaveToNvs();
   }
   else
   {
@@ -202,6 +192,11 @@ static void AlarmLedPowerTimeoutCallback(TimerHandle_t xTimer)
   LedWakeSetDutyCycle(0.0f);
   DEBUG_PRINT("LED Power reset to 0" CLI_NL);
   xTimerStop(xTimer, portMAX_DELAY);
+  AlarmPrefsSaveToNvs();
+}
+
+void AlarmPrefsSaveToNvs()
+{
   prefs.begin(AlarmPrefsNameSpace);
   prefs.putBytes(AlarmPrefsNameSpace, &Alarms, sizeof(Alarms));
   prefs.end();
