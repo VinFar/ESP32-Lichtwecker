@@ -27,6 +27,7 @@ void DebugPrintFunction(DebugPrefix_t DebugPrefix,
 #define DEBUG_PREFIX_LED		"[LED] "
 #define DEBUG_PREFIX_WEBUI		"[WEBUI] "
 #define DEBUG_PREFIX_ALARMS		"[ALARMS] "
+#define DEBUG_PREFIX_TEMP		"[TEMP] "
 
 #define DEBUG_MSG_MAIN (DebugPrefixes[0])
 #define DEBUG_MSG_WIFI (DebugPrefixes[1])
@@ -34,8 +35,9 @@ void DebugPrintFunction(DebugPrefix_t DebugPrefix,
 #define DEBUG_MSG_LED (DebugPrefixes[3])
 #define DEBUG_MSG_WEBUI (DebugPrefixes[4])
 #define DEBUG_MSG_ALARMS (DebugPrefixes[5])
+#define DEBUG_MSG_TEMP (DebugPrefixes[6])
 
-extern DebugPrefix_t DebugPrefixes[6];
+extern DebugPrefix_t DebugPrefixes[7];
 
 
 #endif

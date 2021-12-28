@@ -6,6 +6,8 @@
 #include "myLED.h"
 #include "ESPUI.h"
 #include "AlarmTask.h"
+#include "TemperatureSensor.h"
+
 
 #define DEBUG_MSG DEBUG_MSG_MAIN
 
@@ -17,6 +19,7 @@ void setup()
   LedWakeInit();
   LedWakeSetDutyCycle(27.3f);
   LedWakeFanSetDutyCycle(100.0f);
+  TempSensorInit();
   AlarmTaskInitPrefs();
   xTaskCreatePinnedToCore(TaskWifi,"TaskWifi",4000,NULL,1,NULL,CONFIG_ARDUINO_RUNNING_CORE);
   
