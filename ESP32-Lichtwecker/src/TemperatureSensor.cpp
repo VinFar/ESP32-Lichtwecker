@@ -2,6 +2,8 @@
 #include "TemperatureSensor.h"
 #include <OneWire.h>
 #include <DallasTemperature.h>
+#include "ESPUI.h"
+#include "WebServerStatusTab.h"
 
 #define DEBUG_MSG DEBUG_MSG_TEMP
 
@@ -12,6 +14,8 @@ OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature TemperatureSensor(&oneWire);
 DeviceAddress LedTempAddress;
 void TaskTemperature(void *arg);
+float CurrentTemp;
+String TemperatureString = "-20.0";
 
 void TempSensorInit()
 {
@@ -36,7 +40,7 @@ void TaskTemperature(void *arg)
 
     while (1)
     {
-        TemperatureSensor.requestTemperaturesByAddress(LedTempAddress);
+        TemperatureSensor.requestTemperatures();
 
         // wait for data AND detect disconnect
         while (!TemperatureSensor.isConversionComplete())
@@ -44,8 +48,11 @@ void TaskTemperature(void *arg)
             vTaskDelay(pdMS_TO_TICKS(100));
         }
 
-        float t = TemperatureSensor.getTempC(LedTempAddress);
-        DEBUG_PRINT("Temperature: %3.2f°C" CLI_NL, t);
+        CurrentTemp = TemperatureSensor.getTempC(LedTempAddress);
+        //DEBUG_PRINT("Temperature: %3.2f°C" CLI_NL, CurrentTemp);
+        TemperatureString = String(CurrentTemp,2);
+        ESPUI.print(WebUiGetTemperatureLabelId(),TemperatureString);
+        
         vTaskDelay(pdMS_TO_TICKS(900));
     }
 }

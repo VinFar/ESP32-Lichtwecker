@@ -189,7 +189,7 @@ static void AlarmLedPowerSliderCallback(Control *Select, int type)
 
 static void AlarmLedPowerTimeoutCallback(TimerHandle_t xTimer)
 {
-  LedWakeSetDutyCycle(0.0f);
+  // LedWakeSetDutyCycle(0.0f);
   DEBUG_PRINT("LED Power reset to 0" CLI_NL);
   xTimerStop(xTimer, portMAX_DELAY);
   AlarmPrefsSaveToNvs();
