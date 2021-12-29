@@ -13,14 +13,18 @@ static const char *WebUiAlarmAddAlarm = "Wecker hinzufügen";
 static const char *WebUiAlarmHoursLabel = "Stunde";
 static const char *WebUiAlarmMinuteLabel = "Minute";
 static const char *WebUiAlarmSaveTime = "Weckzeit speichern";
+static const char *WebUiAlarmTimeIntervall = "Zeit Intervall zum Wecken (min)";
+static const char *WebUiAlarmLedPower = "Lichtstärke zum Wecken (%)";
 
-static void AlarmOnOffSwitchCallback(Control *Button, int value);
+static void
+AlarmOnOffSwitchCallback(Control *Button, int value);
 static void AlarmAddButtonClickCallback(Control *Button, int type);
 static void WebUiAddAlarm(Alarm_t *Alarm);
 static void AlarmNumberInputCallback(Control *Select, int type);
 static void AlarmStatusSwitchCallback(Control *Button, int value);
 static void AlarmLedPowerSliderCallback(Control *Select, int type);
 static void AlarmLedPowerTimeoutCallback(TimerHandle_t xTimer);
+static void AlarmLedTimeIntervallCallback(Control *Select, int type);
 
 uint16_t WebUiAlarmTab;
 uint16_t WebUiAlarmStatusSwitcherId;
@@ -34,7 +38,8 @@ void WebUiAlarmTabInit()
 
   WebUiAlarmTab = ESPUI.addControl(ControlType::Tab, WebUiAlarmTabName, WebUiAlarmTabName);
   WebUiAlarmStatusSwitcherId = ESPUI.addControl(ControlType::Switcher, WebUiAlarmOnOffButtonLabel, "", ControlColor::Turquoise, WebUiAlarmTab, &AlarmStatusSwitchCallback);
-  WebUiAlarmLedPowerSlider = ESPUI.addControl(ControlType::Slider, "Lichtstärke", "", ControlColor::Alizarin, WebUiAlarmTab, &AlarmLedPowerSliderCallback);
+  WebUiAlarmLedPowerSlider = ESPUI.addControl(ControlType::Slider, WebUiAlarmLedPower, "", ControlColor::Alizarin, WebUiAlarmTab, &AlarmLedPowerSliderCallback);
+  ESPUI.addControl(ControlType::Number, WebUiAlarmTimeIntervall, "30", ControlColor::Alizarin, WebUiAlarmTab, &AlarmLedTimeIntervallCallback);
 
   TimerLedPowerTimeoutHandle = xTimerCreate("LedPowerTimeoutTimer", pdMS_TO_TICKS(5000), 0, (void *)0, AlarmLedPowerTimeoutCallback);
 
@@ -185,6 +190,10 @@ static void AlarmLedPowerSliderCallback(Control *Select, int type)
   {
     AlarmSetLedPower(i, Select->value.toFloat());
   }
+}
+
+static void AlarmLedTimeIntervallCallback(Control *Select, int type)
+{
 }
 
 static void AlarmLedPowerTimeoutCallback(TimerHandle_t xTimer)
