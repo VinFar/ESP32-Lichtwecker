@@ -5,6 +5,7 @@
 #include "ESPUI.h"
 #include "WebServerStatusTab.h"
 #include "myLED.h"
+#include "WebServerUI.h"
 
 #define DEBUG_MSG DEBUG_MSG_TEMP
 
@@ -18,7 +19,6 @@ void TaskTemperature(void *arg);
 static float TemperatureCalcMaxPWM(float Temp);
 float CurrentTemp;
 String TemperatureString = "-20.0";
-
 
 void TempSensorInit()
 {
@@ -54,7 +54,10 @@ void TaskTemperature(void *arg)
         CurrentTemp = TemperatureSensor.getTempC(LedTempAddress);
         // DEBUG_PRINT("Temperature: %3.2f°C" CLI_NL, CurrentTemp);
         TemperatureString = String(CurrentTemp, 2);
-        ESPUI.print(WebUiGetTemperatureLabelId(), TemperatureString);
+        if (WebUiIsStarted())
+        {
+            ESPUI.print(WebUiGetTemperatureLabelId(), TemperatureString);
+        }
         float MaxPwm = TemperatureCalcMaxPWM(CurrentTemp);
         LedPwmMaxSet(MaxPwm);
         vTaskDelay(pdMS_TO_TICKS(900));
@@ -68,9 +71,9 @@ void TaskTemperature(void *arg)
  */
 static float TemperatureCalcMaxPWM(float Temp)
 {
-    if(Temp > 90.0f)
+    if (Temp > 90.0f)
         return 0.0f;
-    if(Temp < 0.0f)
+    if (Temp < 0.0f)
         return 50.0f;
 
     float pwm;
@@ -81,7 +84,7 @@ static float TemperatureCalcMaxPWM(float Temp)
         return 100.0f;
     if (pwm < 0.0f)
         return 0.0f;
-    DEBUG_PRINT("Limiting Max PWM to %.2f. Current Temperature: %.2f°C" CLI_NL,pwm,Temp);
+    DEBUG_PRINT("Limiting Max PWM to %.2f. Current Temperature: %.2f°C" CLI_NL, pwm, Temp);
     return pwm;
 }
 

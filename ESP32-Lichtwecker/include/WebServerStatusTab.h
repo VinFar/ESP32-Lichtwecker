@@ -3,5 +3,6 @@
 
 void WebUiStatusTabInit();
 uint16_t WebUiGetTemperatureLabelId();
+void WebUiLedPwmUpdateLabel(float DutyCycle);
 
 #endif

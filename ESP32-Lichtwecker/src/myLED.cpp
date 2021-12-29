@@ -1,10 +1,12 @@
 #include "myLED.h"
 #include "Debug.h"
+#include "WebServerStatusTab.h"
+#include "WebServerUI.h"
 
 #define DEBUG_MSG DEBUG_MSG_LED
 
 float MaxPwmFromTemp = 100.0f;
-float CurrentDutyCycle = 0.0f;
+float CurrentDutyCycleOfLed = 0.0f;
 
 void LedWakeInit()
 {
@@ -27,7 +29,8 @@ void LedWakeSetDutyCycle(float DutyCycle)
     if(DutyCycle > MaxPwmFromTemp)
         DutyCycle = MaxPwmFromTemp;
 
-    CurrentDutyCycle = DutyCycle;
+    CurrentDutyCycleOfLed = DutyCycle;
+    WebUiLedPwmUpdateLabel(CurrentDutyCycleOfLed);
     int DutyCycleValue = (int)((((float)(1 << LED_WAKE_RESOLUTION)) * DutyCycle) / 100.0f);
     ledcWrite(LED_WAKE_CHANNEL, DutyCycleValue);
 }
@@ -51,8 +54,12 @@ void LedWakeFanSetDutyCycle(float DutyCycle)
 void LedPwmMaxSet(float MaxPwm)
 {
     MaxPwmFromTemp = MaxPwm;
-    if(CurrentDutyCycle > MaxPwmFromTemp)
-        LedWakeSetDutyCycle(CurrentDutyCycle);
+    if(CurrentDutyCycleOfLed > MaxPwmFromTemp)
+        LedWakeSetDutyCycle(CurrentDutyCycleOfLed);
+}
+
+float LedPwmGet(){
+    return CurrentDutyCycleOfLed;
 }
 
 #undef DEBUG_MSG

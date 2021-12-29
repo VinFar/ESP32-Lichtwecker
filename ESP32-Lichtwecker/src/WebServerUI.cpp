@@ -15,6 +15,7 @@ IPAddress apIP(192, 168, 0, 81);
 DNSServer dnsServer;
 
 void WebUiInitTabs();
+bool EspUiStarted=false;
 
 void TaskWebUI(void *arg)
 {
@@ -27,6 +28,7 @@ void TaskWebUI(void *arg)
   ESPUI.sliderContinuous = true;
   ESPUI.begin("Lichtwecker");
   DEBUG_PRINT("Started WebUI" CLI_NL);
+  EspUiStarted=true;
 
   WebUiAlarmSwitchUpdateAll();
 
@@ -35,6 +37,10 @@ void TaskWebUI(void *arg)
     dnsServer.processNextRequest();
     vTaskDelay(pdMS_TO_TICKS(50));
   }
+}
+
+bool WebUiIsStarted(){
+  return EspUiStarted;
 }
 
 void WebUiInitTabs(){

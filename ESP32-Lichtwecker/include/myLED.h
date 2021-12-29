@@ -15,5 +15,6 @@ void LedWakeInit();
 void LedWakeSetDutyCycle(float DutyCycle);
 void LedWakeFanSetDutyCycle(float DutyCycle);
 void LedPwmMaxSet(float MaxPwm);
+float LedPwmGet();
 
 #endif
