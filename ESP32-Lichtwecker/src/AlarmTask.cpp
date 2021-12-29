@@ -3,6 +3,7 @@
 #include "main.h"
 #include "Debug.h"
 #include "myRTC.h"
+#include "myLED.h"
 
 #define DEBUG_MSG DEBUG_MSG_ALARMS
 
@@ -124,13 +125,25 @@ TaskHandle_t TaskAlarmGetTaskHandle()
 
 static void TaskAlarmTriggered(void *arg)
 {
-    DEBUG_PRINT("Task started for triggering alarm" CLI_NL);
+    uint32_t IndexOfAlarmStruct = (uint32_t)*((uint32_t*)arg);
     float CurrentPwmLedWake = 0.0f;
+    float CurrentPwm=1.0f;
+    uint32_t EndTicks = xTaskGetTickCount() + pdMS_TO_TICKS(Alarms[IndexOfAlarmStruct].AlarmDuration*60*1000);
+    float PwmToIncreasePerStep = 99.0f/(Alarms[IndexOfAlarmStruct].AlarmDuration*60);
+    
+    DEBUG_PRINT("Task started for triggering alarm. Index: %d. DC/s: %.4f P/s" CLI_NL,IndexOfAlarmStruct,PwmToIncreasePerStep);
     TaskAlarmTriggeredTaskHandle = xTaskGetCurrentTaskHandle();
     while (1)
     {
+        LedWakeSetDutyCycle(CurrentPwm);
+        CurrentPwm+=PwmToIncreasePerStep;
         vTaskDelay(pdMS_TO_TICKS(1000));
+        if(xTaskGetTickCount() > EndTicks){
+            break;
+        }
+        DEBUG_PRINT("PWM set to %.4f" CLI_NL,CurrentPwm);
     }
+    DEBUG_PRINT("Alarm is finished! Deleting Task..." CLI_NL);
     TaskAlarmTriggeredTaskHandle = NULL;
     vTaskDelete(NULL);
 }

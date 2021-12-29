@@ -81,7 +81,7 @@ static float TemperatureCalcMaxPWM(float Temp)
         return 100.0f;
     if (pwm < 0.0f)
         return 0.0f;
-    DEBUG_PRINT("Limiting Max PWM to %.2f %. Current Temperature: %.2f°C" CLI_NL,pwm,Temp);
+    DEBUG_PRINT("Limiting Max PWM to %.2f. Current Temperature: %.2f°C" CLI_NL,pwm,Temp);
     return pwm;
 }
 
