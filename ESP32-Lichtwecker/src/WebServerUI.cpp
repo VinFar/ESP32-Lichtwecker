@@ -25,7 +25,7 @@ void TaskWebUI(void *arg)
   WebUiInitTabs();
 
   ESPUI.sliderContinuous = true;
-  ESPUI.begin("ESPUI Control");
+  ESPUI.begin("Lichtwecker");
   DEBUG_PRINT("Started WebUI" CLI_NL);
 
   WebUiAlarmSwitchUpdateAll();

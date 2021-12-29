@@ -17,7 +17,7 @@ void setup()
 {
   Serial.begin(115200);
   LedWakeInit();
-  LedWakeSetDutyCycle(27.3f);
+  LedWakeSetDutyCycle(0);
   LedWakeFanSetDutyCycle(100.0f);
   TempSensorInit();
   AlarmTaskInitPrefs();
