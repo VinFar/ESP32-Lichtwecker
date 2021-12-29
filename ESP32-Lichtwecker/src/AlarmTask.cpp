@@ -200,4 +200,9 @@ void AlarmSetLedPower(uint8_t Index,float DC){
     Alarms[Index].AlarmMaxLight = DC;
 }
 
+void AlarmSetTimeInterval(uint8_t Index,uint32_t Time){
+    Alarms[Index].AlarmDuration = Time;
+}
+
+
 #undef DEBUG_MSG
