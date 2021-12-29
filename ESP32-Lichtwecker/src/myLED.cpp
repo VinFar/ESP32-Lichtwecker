@@ -18,7 +18,7 @@ void LedWakeInit()
 
 void LedWakeSetDutyCycle(float DutyCycle)
 {
-
+    DutyCycle = DutyCycle*0.89f+11;
     if (DutyCycle < 0.0f)
         DutyCycle = 0.0f;
     if (DutyCycle > 100.0f)
