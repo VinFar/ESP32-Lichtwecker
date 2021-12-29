@@ -38,8 +38,10 @@ void WebUiAlarmTabInit()
 
   WebUiAlarmTab = ESPUI.addControl(ControlType::Tab, WebUiAlarmTabName, WebUiAlarmTabName);
   WebUiAlarmStatusSwitcherId = ESPUI.addControl(ControlType::Switcher, WebUiAlarmOnOffButtonLabel, "", ControlColor::Turquoise, WebUiAlarmTab, &AlarmStatusSwitchCallback);
-  WebUiAlarmLedPowerSlider = ESPUI.addControl(ControlType::Slider, WebUiAlarmLedPower, "", ControlColor::Alizarin, WebUiAlarmTab, &AlarmLedPowerSliderCallback);
-  ESPUI.addControl(ControlType::Number, WebUiAlarmTimeIntervall, "30", ControlColor::Alizarin, WebUiAlarmTab, &AlarmLedTimeIntervallCallback);
+  String LedPowerString = String(Alarms[0].AlarmMaxLight,0);
+  WebUiAlarmLedPowerSlider = ESPUI.addControl(ControlType::Slider, WebUiAlarmLedPower, LedPowerString, ControlColor::Alizarin, WebUiAlarmTab, &AlarmLedPowerSliderCallback);
+  String TimeIntervalString = String(Alarms[0].AlarmDuration,0);
+  ESPUI.addControl(ControlType::Number, WebUiAlarmTimeIntervall, TimeIntervalString, ControlColor::Alizarin, WebUiAlarmTab, &AlarmLedTimeIntervallCallback);
 
   TimerLedPowerTimeoutHandle = xTimerCreate("LedPowerTimeoutTimer", pdMS_TO_TICKS(5000), 0, (void *)0, AlarmLedPowerTimeoutCallback);
 
@@ -186,6 +188,7 @@ static void AlarmLedPowerSliderCallback(Control *Select, int type)
   DEBUG_PRINT("LED Power Slider set t %d" CLI_NL, Select->value.toInt());
   xTimerReset(TimerLedPowerTimeoutHandle, 0);
   LedWakeSetDutyCycle(Select->value.toFloat());
+  ESPUI.updateSlider(WebUiAlarmLedPowerSlider,Select->value.toInt());
   for (int i = 0; i < ARRAY_LEN(Alarms); i++)
   {
     AlarmSetLedPower(i, Select->value.toFloat());
