@@ -3,5 +3,6 @@
 
 void TaskWebUI(void *arg);
 bool WebUiIsStarted();
+void DnsServerProcessNextRequest();
 
 #endif

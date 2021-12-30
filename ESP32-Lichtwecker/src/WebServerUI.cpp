@@ -15,35 +15,46 @@ IPAddress apIP(192, 168, 0, 81);
 DNSServer dnsServer;
 
 void WebUiInitTabs();
-bool EspUiStarted=false;
+bool EspUiStarted = false;
 
 void TaskWebUI(void *arg)
 {
   DEBUG_PRINT("Created TaskWebUI" CLI_NL);
   // ESPUI.setVerbosity(Verbosity::VerboseJSON);
-  dnsServer.start(DNS_PORT, "*", apIP);
-
+  apIP[3] = rand()%255;
+  DEBUG_PRINT("IP: %d.%d.%d.%d" CLI_NL,apIP[0],apIP[1],apIP[2],apIP[3]);
+  bool Status = dnsServer.start(DNS_PORT, "*", apIP);
+  DEBUG_PRINT("DNS Status %s" CLI_NL, Status ? "OK" : "Fail");
   WebUiInitTabs();
 
   ESPUI.sliderContinuous = true;
   ESPUI.begin("Lichtwecker");
   DEBUG_PRINT("Started WebUI" CLI_NL);
-  EspUiStarted=true;
+  EspUiStarted = true;
 
   WebUiAlarmSwitchUpdateAll();
 
   while (1)
   {
-    dnsServer.processNextRequest();
     vTaskDelay(pdMS_TO_TICKS(50));
   }
 }
 
-bool WebUiIsStarted(){
+void DnsServerProcessNextRequest()
+{
+  if (WebUiIsStarted())
+  {
+    dnsServer.processNextRequest();
+  }
+}
+
+bool WebUiIsStarted()
+{
   return EspUiStarted;
 }
 
-void WebUiInitTabs(){
+void WebUiInitTabs()
+{
   WebUiAlarmTabInit();
   WebUiStatusTabInit();
 }

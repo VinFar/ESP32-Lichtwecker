@@ -24,7 +24,7 @@ void TaskWifi(void *arg){
     WifiManager.autoConnect("Lichtwecker");
     DEBUG_PRINT("Trying to connect...\n");
     WifiManager.setAPCallback(configModeCallback);
-    WifiManager.autoConnect();
+    //WifiManager.autoConnect();
 
     while(1){
         if(WiFi.status()==WL_CONNECTED){

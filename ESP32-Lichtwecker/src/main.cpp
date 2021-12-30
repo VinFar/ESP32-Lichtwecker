@@ -7,7 +7,7 @@
 #include "ESPUI.h"
 #include "AlarmTask.h"
 #include "TemperatureSensor.h"
-
+#include "WebServerUI.h"
 
 #define DEBUG_MSG DEBUG_MSG_MAIN
 
@@ -28,7 +28,7 @@ void setup()
 
 void loop()
 {
-  // put your main code here, to run repeatedly:
+  DnsServerProcessNextRequest();
 }
 
 #undef DEBUG_MSG
