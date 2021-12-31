@@ -231,6 +231,7 @@ static void AlarmLedPowerTimeoutCallback(TimerHandle_t xTimer)
 
 void AlarmPrefsSaveToNvs()
 {
+  DEBUG_PRINT("Saved Alarms struct to NVS" CLI_NL);
   prefs.begin(AlarmPrefsNameSpace);
   prefs.putBytes(AlarmPrefsNameSpace, &Alarms, sizeof(Alarms));
   prefs.end();
