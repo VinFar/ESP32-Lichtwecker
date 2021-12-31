@@ -32,6 +32,13 @@ void WebUiLedPwmUpdateLabel(float DutyCycle)
 {
   if (WebUiIsStarted())
   {
+    DutyCycle = (DutyCycle - 10) / 0.90f;
+    if (DutyCycle > 100.0f)
+      DutyCycle = 100.0f;
+    
+    if (DutyCycle < 0.0f)
+      DutyCycle = 0.0f;
+    
     String DcString = String(DutyCycle, 2);
     ESPUI.print(WebUiDutyCycleLedLabelId, DcString);
   }

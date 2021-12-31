@@ -190,7 +190,7 @@ static void AlarmLedPowerSliderCallback(Control *Select, int type)
   DEBUG_PRINT("LED Power Slider set to %d" CLI_NL, Select->value.toInt());
   xTimerReset(TimerLedPowerTimeoutHandle, 0);
   LedWakeSetDutyCycle(Select->value.toFloat());
-  ESPUI.updateSlider(WebUiAlarmLedPowerSliderId,Select->value.toInt());
+  // ESPUI.updateSlider(WebUiAlarmLedPowerSliderId,Select->value.toInt());
   for (int i = 0; i < ARRAY_LEN(Alarms); i++)
   {
     AlarmSetLedPower(i, Select->value.toFloat());

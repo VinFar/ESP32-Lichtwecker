@@ -20,17 +20,21 @@ void LedWakeInit()
 
 void LedWakeSetDutyCycle(float DutyCycle)
 {
-    DutyCycle = DutyCycle*0.89f+11;
+
     if (DutyCycle < 0.0f)
         DutyCycle = 0.0f;
     if (DutyCycle > 100.0f)
         DutyCycle = 100.0f;
 
-    if(DutyCycle > MaxPwmFromTemp)
+    if (DutyCycle != 0.0f)
+        DutyCycle = DutyCycle * 0.90f + 10;
+
+    if (DutyCycle > MaxPwmFromTemp)
         DutyCycle = MaxPwmFromTemp;
 
     CurrentDutyCycleOfLed = DutyCycle;
-    WebUiLedPwmUpdateLabel(CurrentDutyCycleOfLed);
+    WebUiLedPwmUpdateLabel(DutyCycle);
+    DEBUG_PRINT("DutyCycle for PWM Driver %f" CLI_NL,DutyCycle);
     int DutyCycleValue = (int)((((float)(1 << LED_WAKE_RESOLUTION)) * DutyCycle) / 100.0f);
     ledcWrite(LED_WAKE_CHANNEL, DutyCycleValue);
 }
@@ -54,11 +58,12 @@ void LedWakeFanSetDutyCycle(float DutyCycle)
 void LedPwmMaxSet(float MaxPwm)
 {
     MaxPwmFromTemp = MaxPwm;
-    if(CurrentDutyCycleOfLed > MaxPwmFromTemp)
+    if (CurrentDutyCycleOfLed > MaxPwmFromTemp)
         LedWakeSetDutyCycle(CurrentDutyCycleOfLed);
 }
 
-float LedPwmGet(){
+float LedPwmGet()
+{
     return CurrentDutyCycleOfLed;
 }
 
