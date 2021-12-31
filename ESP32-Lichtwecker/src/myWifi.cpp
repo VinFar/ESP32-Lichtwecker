@@ -21,11 +21,11 @@ void TaskWifi(void *arg){
     DEBUG_PRINT("Created TaskWifi\n");
 
     WifiManager.setDebugOutput(true);
-    WifiManager.autoConnect("Lichtwecker");
-    DEBUG_PRINT("Trying to connect...\n");
     WifiManager.setAPCallback(configModeCallback);
+    WifiManager.autoConnect("","",5UL,5000UL);
+    DEBUG_PRINT("Trying to connect...\n");
     //WifiManager.autoConnect();
-
+    DEBUG_PRINT("Config Portal finished" CLI_NL);
     while(1){
         if(WiFi.status()==WL_CONNECTED){
           if(WifiGetStatus()!=WL_CONNECTED){
@@ -61,14 +61,14 @@ static void WifiDisconnectedCallback(){
   DEBUG_PRINT("Wifi Disconnected\n");
   DEBUG_PRINT("Starting AutoConnect\n");
   vTaskDelete(TaskSNTPHandleGet());
-  WifiManager.autoConnect();
+  WifiManager.autoConnect("","",5,5000);
 }
 
 static void configModeCallback(AsyncWiFiManager *WifiMan) {
   IPAddress ip = WiFi.softAPIP();
   DEBUG_PRINT("Entered config mode\n");
-  DEBUG_PRINT("IP Address: %s\n",ip.toString());
-  DEBUG_PRINT("%s\n",WifiMan->getConfigPortalSSID());
+  DEBUG_PRINT("IP Address: %d.%d.%d.%d" CLI_NL,ip[0],ip[1],ip[2],ip[3]);
+  DEBUG_PRINT("SSID %s" CLI_NL,WifiMan->getConfigPortalSSID());
 }
 
 #undef DEBUG_MSG

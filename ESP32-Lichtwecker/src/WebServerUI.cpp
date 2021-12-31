@@ -21,7 +21,6 @@ void TaskWebUI(void *arg)
 {
   DEBUG_PRINT("Created TaskWebUI" CLI_NL);
   // ESPUI.setVerbosity(Verbosity::VerboseJSON);
-  apIP[3] = rand()%255;
   DEBUG_PRINT("IP: %d.%d.%d.%d" CLI_NL,apIP[0],apIP[1],apIP[2],apIP[3]);
   bool Status = dnsServer.start(DNS_PORT, "*", apIP);
   DEBUG_PRINT("DNS Status %s" CLI_NL, Status ? "OK" : "Fail");
