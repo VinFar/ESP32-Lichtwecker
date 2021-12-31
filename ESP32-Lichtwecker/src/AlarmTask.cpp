@@ -10,6 +10,7 @@
 Preferences prefs;
 const char *AlarmPrefsNameSpace = "Alarm";
 const char *AlarmPrefAlarmStatus = "AlarmStatus";
+const char *AlarmPrefsLedPowerOffTimer = "LedPowerOff";
 TaskHandle_t TaskAlarmTriggeredTaskHandle = NULL;
 bool AlarmStatusAll = true;
 TaskHandle_t TaskAlarmTaskHandle = NULL;
@@ -19,6 +20,8 @@ static void TaskAlarmTriggered(void *arg);
 
 Alarm_t Alarms[7] = {{Monday, "Montags"}, {Tuesday, "Dienstag"}, {Wednesday, "Mittwoch"}, {Thursday, "Donnerstag"}, {Friday, "Freitag"}, {Saturday, "Samstag"}, {Sunday, "Sonntag"}};
 int AlarmIndexes[7];
+
+int AlarmLedOffTimerValue;
 
 void AlarmGetAlarm(uint8_t idx, Alarm_t *Alarm)
 {
@@ -32,51 +35,21 @@ void AlarmGetAlarm(uint8_t idx, Alarm_t *Alarm)
 void AlarmTaskInitPrefs()
 {
 
-    if (!prefs.begin(AlarmPrefsNameSpace))
-    {
-        DEBUG_PRINT("Could not open Prefs Namespace" CLI_NL);
-    }
-
-    // if(!prefs.putBytes(AlarmPrefsNameSpace,&Alarms,sizeof(Alarms))){
-    //     DEBUG_PRINT("Could not write Alarms struct" CLI_NL);
-    // }else{
-    //     DEBUG_PRINT("Wrote Alarms struct" CLI_NL);
-    // }
-
-    if (!prefs.getBytes(AlarmPrefsNameSpace, &Alarms, sizeof(Alarms)))
-    {
-        DEBUG_PRINT("Could not Read Alarms struct" CLI_NL);
-    }
-    else
-    {
-        DEBUG_PRINT("Read Alarms struct" CLI_NL);
-    }
+    prefs.begin(AlarmPrefsNameSpace);
+    //prefs.putBytes(AlarmPrefsNameSpace, &Alarms, sizeof(Alarms));
+    prefs.getBytes(AlarmPrefsNameSpace, &Alarms, sizeof(Alarms));
     DEBUG_PRINT("Alarm %s %s" CLI_NL, Alarms[0].WeekDayString, Alarms[0].AlarmOnOff ? "on" : "off");
+    DEBUG_PRINT("Alarm Rising Time %d min" CLI_NL,Alarms[0].AlarmDuration);
     prefs.end();
 
-    if (!prefs.begin(AlarmPrefAlarmStatus))
-    {
-        DEBUG_PRINT("Could not open Prefs Namespace" CLI_NL);
-    }
+    prefs.begin(AlarmPrefsLedPowerOffTimer);
+    //prefs.putInt(AlarmPrefsLedPowerOffTimer,15);
+    AlarmLedOffTimerValue = prefs.getInt(AlarmPrefsLedPowerOffTimer);
+    DEBUG_PRINT("Alarm LED Power OFF Timer %d" CLI_NL,AlarmLedOffTimerValue);
+    prefs.end();
 
-    // if (!prefs.putBytes(AlarmPrefAlarmStatus, &AlarmStatusAll, sizeof(AlarmStatusAll)))
-    // {
-    //     DEBUG_PRINT("Could not write Alarms struct" CLI_NL);
-    // }
-    // else
-    // {
-    //     DEBUG_PRINT("Wrote Alarm status" CLI_NL);
-    // }
-
-    if (!prefs.getBytes(AlarmPrefAlarmStatus, &AlarmStatusAll, sizeof(AlarmStatusAll)))
-    {
-        DEBUG_PRINT("Could not Read Alarms Status" CLI_NL);
-    }
-    else
-    {
-        DEBUG_PRINT("Read Alarms Status" CLI_NL);
-    }
-
+    prefs.begin(AlarmPrefAlarmStatus);
+    prefs.getBytes(AlarmPrefAlarmStatus, &AlarmStatusAll, sizeof(AlarmStatusAll));
     DEBUG_PRINT("Alarm General Status %s" CLI_NL, AlarmStatusAll ? "on" : "off");
     prefs.end();
 }
@@ -125,32 +98,36 @@ TaskHandle_t TaskAlarmGetTaskHandle()
 
 static void TaskAlarmTriggered(void *arg)
 {
-    uint32_t IndexOfAlarmStruct = (uint32_t)*((uint32_t*)arg);
+    uint32_t IndexOfAlarmStruct = (uint32_t) * ((uint32_t *)arg);
     float CurrentPwmLedWake = 0.0f;
-    float CurrentPwm=1.0f;
-    uint32_t EndTicks = xTaskGetTickCount() + pdMS_TO_TICKS(Alarms[IndexOfAlarmStruct].AlarmDuration*60*1000);
-    float PwmToIncreasePerStep = 99.0f/(Alarms[IndexOfAlarmStruct].AlarmDuration*60);
-    
-    DEBUG_PRINT("Task started for triggering alarm. Index: %d. DC/s: %.4f P/s" CLI_NL,IndexOfAlarmStruct,PwmToIncreasePerStep);
+    float CurrentPwm = 1.0f;
+    uint32_t EndTicks = xTaskGetTickCount() + pdMS_TO_TICKS(Alarms[IndexOfAlarmStruct].AlarmDuration * 60 * 1000);
+    float PwmToIncreasePerStep = 99.0f / (Alarms[IndexOfAlarmStruct].AlarmDuration * 60);
+
+    DEBUG_PRINT("Task started for triggering alarm. Index: %d. DC/s: %.4f P/s" CLI_NL, IndexOfAlarmStruct, PwmToIncreasePerStep);
     TaskAlarmTriggeredTaskHandle = xTaskGetCurrentTaskHandle();
     while (1)
     {
         LedWakeSetDutyCycle(CurrentPwm);
-        CurrentPwm+=PwmToIncreasePerStep;
+        CurrentPwm += PwmToIncreasePerStep;
         vTaskDelay(pdMS_TO_TICKS(1000));
-        if(xTaskGetTickCount() > EndTicks){
+        if (xTaskGetTickCount() > EndTicks)
+        {
             break;
         }
-        DEBUG_PRINT("PWM set to %.4f" CLI_NL,CurrentPwm);
+        DEBUG_PRINT("PWM set to %.4f" CLI_NL, CurrentPwm);
     }
+    DEBUG_PRINT("Finished with Rising LED Power. Powering LED for %d mins" CLI_NL,AlarmLedOffTimerGet());
+    vTaskDelay(pdMS_TO_TICKS(AlarmLedOffTimerGet()*60*1000));
+    LedWakeSetDutyCycle(0.0f);
     DEBUG_PRINT("Alarm is finished! Deleting Task..." CLI_NL);
     TaskAlarmTriggeredTaskHandle = NULL;
     vTaskDelete(NULL);
 }
 
 /*
-* Sunday is 0 in tm struct
-*/
+ * Sunday is 0 in tm struct
+ */
 int AlarmCheckForAlarmTrigger(struct tm CurrentTime, int *AlarmIndex)
 {
     DEBUG_PRINT("Checking if Alarm needs to be triggered. Current Time: %02d:%02d" CLI_NL, CurrentTime.tm_hour, CurrentTime.tm_min);
@@ -209,13 +186,34 @@ int8_t AlarmStatusSaveToNvs()
     DEBUG_PRINT("Wrote Alarm Status to NVS" CLI_NL);
 }
 
-void AlarmSetLedPower(uint8_t Index,float DC){
+void AlarmSetLedPower(uint8_t Index, float DC)
+{
     Alarms[Index].AlarmMaxLight = DC;
 }
 
-void AlarmSetTimeInterval(uint8_t Index,uint32_t Time){
+void AlarmSetTimeInterval(uint8_t Index, uint32_t Time)
+{
     Alarms[Index].AlarmDuration = Time;
 }
 
+void AlarmSetLedOffTimer(int NewValue)
+{
+    DEBUG_PRINT("LED Power Off Timer set to %d" CLI_NL,NewValue);
+    AlarmLedOffTimerValue = NewValue;
+}
+
+int AlarmLedOffTimerGet()
+{
+    return AlarmLedOffTimerValue;
+}
+
+void AlarmLedOffTimerSaveToNVS()
+{
+    prefs.begin(AlarmPrefsLedPowerOffTimer);
+    prefs.putInt(AlarmPrefsLedPowerOffTimer, AlarmLedOffTimerValue);
+    prefs.end();
+
+    DEBUG_PRINT("LED Power Off Timer saved to NVs" CLI_NL);
+}
 
 #undef DEBUG_MSG

@@ -15,6 +15,7 @@ static const char *WebUiAlarmMinuteLabel = "Minute";
 static const char *WebUiAlarmSaveTime = "Weckzeit speichern";
 static const char *WebUiAlarmTimeIntervall = "Zeit Intervall zum Wecken (min)";
 static const char *WebUiAlarmLedPower = "Lichtstärke zum Wecken (%)";
+static const char *WebUiAlarmLedOffTimeLabel ="LED Einschaltzeit nach Wecker (min)";
 
 static void
 AlarmOnOffSwitchCallback(Control *Button, int value);
@@ -25,11 +26,13 @@ static void AlarmStatusSwitchCallback(Control *Button, int value);
 static void AlarmLedPowerSliderCallback(Control *Select, int type);
 static void AlarmLedPowerTimeoutCallback(TimerHandle_t xTimer);
 static void AlarmLedTimeIntervallCallback(Control *Select, int type);
+static void AlarmLedOffTimerNumberCallback(Control *Select,int type);
 
 uint16_t WebUiAlarmTab;
 uint16_t WebUiAlarmStatusSwitcherId;
 uint16_t WebUiAlarmLedPowerSliderId;
 uint16_t WebUiAlarmTimeIntervalId;
+uint16_t WebUiAlarmLedPowerOffNumberId;
 TimerHandle_t TimerLedPowerTimeoutHandle;
 int AlarmOnOffSwitch;
 
@@ -42,6 +45,7 @@ void WebUiAlarmTabInit()
   String LedPowerString = String(Alarms[0].AlarmMaxLight,0);
   WebUiAlarmLedPowerSliderId = ESPUI.addControl(ControlType::Slider, WebUiAlarmLedPower, LedPowerString, ControlColor::Alizarin, WebUiAlarmTab, &AlarmLedPowerSliderCallback);
   WebUiAlarmTimeIntervalId= ESPUI.addControl(ControlType::Number, WebUiAlarmTimeIntervall, "", ControlColor::Alizarin, WebUiAlarmTab, &AlarmLedTimeIntervallCallback);
+  WebUiAlarmLedPowerOffNumberId = ESPUI.addControl(ControlType::Number,WebUiAlarmLedOffTimeLabel,"",ControlColor::Alizarin,WebUiAlarmTab,&AlarmLedOffTimerNumberCallback);
   
 
   TimerLedPowerTimeoutHandle = xTimerCreate("LedPowerTimeoutTimer", pdMS_TO_TICKS(5000), 0, (void *)0, AlarmLedPowerTimeoutCallback);
@@ -148,6 +152,7 @@ void WebUiAlarmSwitchUpdateAll()
   }
   ESPUI.updateSwitcher(WebUiAlarmStatusSwitcherId, AlarmStateGet());
   ESPUI.updateNumber(WebUiAlarmTimeIntervalId,Alarms[0].AlarmDuration);
+  ESPUI.updateNumber(WebUiAlarmLedPowerOffNumberId,AlarmLedOffTimerGet());
 }
 
 static void AlarmNumberInputCallback(Control *Select, int type)
@@ -207,6 +212,13 @@ static void AlarmLedTimeIntervallCallback(Control *Select, int type)
     AlarmSetTimeInterval(i, value);
   }
   AlarmPrefsSaveToNvs();
+}
+
+static void AlarmLedOffTimerNumberCallback(Control *Select,int type){
+  int ValueFromSlider = Select->value.toInt();
+  ESPUI.updateNumber(Select->id,ValueFromSlider);
+  AlarmSetLedOffTimer(ValueFromSlider);
+  AlarmLedOffTimerSaveToNVS();
 }
 
 static void AlarmLedPowerTimeoutCallback(TimerHandle_t xTimer)

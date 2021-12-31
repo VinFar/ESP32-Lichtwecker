@@ -51,5 +51,8 @@ TaskHandle_t TaskAlarmGetTaskHandle();
 void AlarmSetLedPower(uint8_t Index,float DC);
 void AlarmPrefsSaveToNvs();
 void AlarmSetTimeInterval(uint8_t Index,uint32_t Time);
+int AlarmLedOffTimerGet();
+void AlarmSetLedOffTimer(int NewValue);
+void AlarmLedOffTimerSaveToNVS();
 
 #endif
