@@ -24,7 +24,6 @@ void TaskWifi(void *arg){
     WifiManager.setAPCallback(configModeCallback);
     WifiManager.autoConnect("","",5UL,5000UL);
     DEBUG_PRINT("Trying to connect...\n");
-    //WifiManager.autoConnect();
     DEBUG_PRINT("Config Portal finished" CLI_NL);
     while(1){
         if(WiFi.status()==WL_CONNECTED){
