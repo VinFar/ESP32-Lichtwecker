@@ -36,16 +36,16 @@ void AlarmTaskInitPrefs()
 {
 
     prefs.begin(AlarmPrefsNameSpace);
-    //prefs.putBytes(AlarmPrefsNameSpace, &Alarms, sizeof(Alarms));
+    // prefs.putBytes(AlarmPrefsNameSpace, &Alarms, sizeof(Alarms));
     prefs.getBytes(AlarmPrefsNameSpace, &Alarms, sizeof(Alarms));
     DEBUG_PRINT("Alarm %s %s" CLI_NL, Alarms[0].WeekDayString, Alarms[0].AlarmOnOff ? "on" : "off");
-    DEBUG_PRINT("Alarm Rising Time %d min" CLI_NL,Alarms[0].AlarmDuration);
+    DEBUG_PRINT("Alarm Rising Time %d min" CLI_NL, Alarms[0].AlarmDuration);
     prefs.end();
 
     prefs.begin(AlarmPrefsLedPowerOffTimer);
-    //prefs.putInt(AlarmPrefsLedPowerOffTimer,15);
+    // prefs.putInt(AlarmPrefsLedPowerOffTimer,15);
     AlarmLedOffTimerValue = prefs.getInt(AlarmPrefsLedPowerOffTimer);
-    DEBUG_PRINT("Alarm LED Power OFF Timer %d" CLI_NL,AlarmLedOffTimerValue);
+    DEBUG_PRINT("Alarm LED Power OFF Timer %d" CLI_NL, AlarmLedOffTimerValue);
     prefs.end();
 
     prefs.begin(AlarmPrefAlarmStatus);
@@ -101,10 +101,11 @@ static void TaskAlarmTriggered(void *arg)
     uint32_t IndexOfAlarmStruct = (uint32_t) * ((uint32_t *)arg);
     float CurrentPwmLedWake = 0.0f;
     float CurrentPwm = 1.0f;
+    float MaximumPwm = Alarms[IndexOfAlarmStruct].AlarmMaxLight;
     uint32_t EndTicks = xTaskGetTickCount() + pdMS_TO_TICKS(Alarms[IndexOfAlarmStruct].AlarmDuration * 60 * 1000);
-    float PwmToIncreasePerStep = 99.0f / (Alarms[IndexOfAlarmStruct].AlarmDuration * 60);
+    float PwmToIncreasePerStep = MaximumPwm / (Alarms[IndexOfAlarmStruct].AlarmDuration * 60);
 
-    DEBUG_PRINT("Task started for triggering alarm. Index: %d. DC/s: %.4f P/s" CLI_NL, IndexOfAlarmStruct, PwmToIncreasePerStep);
+    DEBUG_PRINT("Task started for triggering alarm. Index: %d | Max Power: %d | DC/s: %.4f P/s" CLI_NL, IndexOfAlarmStruct, MaximumPwm, PwmToIncreasePerStep);
     TaskAlarmTriggeredTaskHandle = xTaskGetCurrentTaskHandle();
     while (1)
     {
@@ -117,8 +118,8 @@ static void TaskAlarmTriggered(void *arg)
         }
         DEBUG_PRINT("PWM set to %.4f" CLI_NL, CurrentPwm);
     }
-    DEBUG_PRINT("Finished with Rising LED Power. Powering LED for %d mins" CLI_NL,AlarmLedOffTimerGet());
-    vTaskDelay(pdMS_TO_TICKS(AlarmLedOffTimerGet()*60*1000));
+    DEBUG_PRINT("Finished with Rising LED Power. Powering LED for %d mins" CLI_NL, AlarmLedOffTimerGet());
+    vTaskDelay(pdMS_TO_TICKS(AlarmLedOffTimerGet() * 60 * 1000));
     LedWakeSetDutyCycle(0.0f);
     DEBUG_PRINT("Alarm is finished! Deleting Task..." CLI_NL);
     TaskAlarmTriggeredTaskHandle = NULL;
@@ -198,7 +199,7 @@ void AlarmSetTimeInterval(uint8_t Index, uint32_t Time)
 
 void AlarmSetLedOffTimer(int NewValue)
 {
-    DEBUG_PRINT("LED Power Off Timer set to %d" CLI_NL,NewValue);
+    DEBUG_PRINT("LED Power Off Timer set to %d" CLI_NL, NewValue);
     AlarmLedOffTimerValue = NewValue;
 }
 

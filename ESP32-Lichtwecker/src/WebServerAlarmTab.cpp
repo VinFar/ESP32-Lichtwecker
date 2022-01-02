@@ -195,6 +195,7 @@ static void AlarmLedPowerSliderCallback(Control *Select, int type)
   DEBUG_PRINT("LED Power Slider set to %d" CLI_NL, Select->value.toInt());
   xTimerReset(TimerLedPowerTimeoutHandle, 0);
   LedWakeSetDutyCycle(Select->value.toFloat());
+  // LedWakeFanSetDutyCycle(Select->value.toFloat());
   // ESPUI.updateSlider(WebUiAlarmLedPowerSliderId,Select->value.toInt());
   for (int i = 0; i < ARRAY_LEN(Alarms); i++)
   {
@@ -223,7 +224,7 @@ static void AlarmLedOffTimerNumberCallback(Control *Select,int type){
 
 static void AlarmLedPowerTimeoutCallback(TimerHandle_t xTimer)
 {
-  LedWakeSetDutyCycle(0.0f);
+  // LedWakeSetDutyCycle(0.0f);
   DEBUG_PRINT("LED PWM reset to 0%" CLI_NL);
   xTimerStop(xTimer, portMAX_DELAY);
   AlarmPrefsSaveToNvs();

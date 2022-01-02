@@ -17,6 +17,8 @@ DallasTemperature TemperatureSensor(&oneWire);
 DeviceAddress LedTempAddress;
 void TaskTemperature(void *arg);
 static float TemperatureCalcMaxPWM(float Temp);
+static float TemperatureCalcFanPower(float Temp);
+
 float CurrentTemp;
 String TemperatureString = "-20.0";
 
@@ -24,6 +26,7 @@ void TempSensorInit()
 {
 
     TemperatureSensor.begin();
+    TemperatureSensor.setWaitForConversion(false);
 
     if (!TemperatureSensor.getAddress(LedTempAddress, 0))
     {
@@ -59,6 +62,8 @@ void TaskTemperature(void *arg)
             ESPUI.print(WebUiGetTemperatureLabelId(), TemperatureString);
         }
         float MaxPwm = TemperatureCalcMaxPWM(CurrentTemp);
+        float FanPwm = TemperatureCalcFanPower(CurrentTemp);
+        LedWakeFanSetDutyCycle(FanPwm);
         LedPwmMaxSet(MaxPwm);
         vTaskDelay(pdMS_TO_TICKS(900));
     }
@@ -78,13 +83,26 @@ static float TemperatureCalcMaxPWM(float Temp)
 
     float pwm;
 
-    pwm = -10 * Temp + 900;
+    pwm = -10 * Temp + 800;
 
     if (pwm > 100.0f)
         return 100.0f;
     if (pwm < 0.0f)
         return 0.0f;
     DEBUG_PRINT("Limiting Max PWM to %.2f. Current Temperature: %.2f°C" CLI_NL, pwm, Temp);
+    return pwm;
+}
+
+static float TemperatureCalcFanPower(float Temp)
+{
+
+    float pwm = 3.333 * Temp - 166.666;
+
+    if (pwm < 0)
+        pwm = 0.0f;
+    if (pwm > 100.0f)
+        pwm = 100.0f;
+
     return pwm;
 }
 

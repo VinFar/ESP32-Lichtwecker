@@ -15,7 +15,7 @@ void LedWakeInit()
 
     ledcSetup(LED_WAKE_FAN_CHANNEL, LED_WAKE_FAN_FREQUENCY, LED_WAKE_FAN_RESOLUTION);
     ledcAttachPin(LED_WAKE_FAN_PIN, LED_WAKE_FAN_CHANNEL);
-    ledcWrite(1, 1000);
+
 }
 
 void LedWakeSetDutyCycle(float DutyCycle)
@@ -40,16 +40,16 @@ void LedWakeSetDutyCycle(float DutyCycle)
 }
 
 void LedWakeFanSetDutyCycle(float DutyCycle)
-{
+{   
 
     if (DutyCycle < 0.0f)
-    {
         DutyCycle = 0.0f;
-    }
+    
     if (DutyCycle > 100.0f)
-    {
         DutyCycle = 100.0f;
-    }
+    
+    if(DutyCycle != 0.0f)
+        DutyCycle = DutyCycle * 0.70f + 30;
 
     int DutyCycleValue = (int)((((float)(1 << LED_WAKE_FAN_RESOLUTION)) * DutyCycle) / 100.0f);
     ledcWrite(LED_WAKE_FAN_CHANNEL, DutyCycleValue);
