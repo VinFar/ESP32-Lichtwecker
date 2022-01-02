@@ -8,6 +8,7 @@
 #include "AlarmTask.h"
 #include "TemperatureSensor.h"
 #include "WebServerUI.h"
+#include "Button.h"
 
 #define DEBUG_MSG DEBUG_MSG_MAIN
 
@@ -20,7 +21,9 @@ void setup()
   LedWakeSetDutyCycle(0);
   LedWakeFanSetDutyCycle(50.0f);
   TempSensorInit();
+  ButtonInit();
   AlarmTaskInitPrefs();
+
   xTaskCreatePinnedToCore(TaskWifi,"TaskWifi",4000,NULL,1,NULL,CONFIG_ARDUINO_RUNNING_CORE);
   
 }
@@ -29,6 +32,7 @@ void setup()
 void loop()
 {
   DnsServerProcessNextRequest();
+  ButtonTick();
 }
 
 #undef DEBUG_MSG
