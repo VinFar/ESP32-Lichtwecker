@@ -54,5 +54,6 @@ void AlarmSetTimeInterval(uint8_t Index,uint32_t Time);
 int AlarmLedOffTimerGet();
 void AlarmSetLedOffTimer(int NewValue);
 void AlarmLedOffTimerSaveToNVS();
+int8_t ButtonSingleClickAlarmCallback();
 
 #endif

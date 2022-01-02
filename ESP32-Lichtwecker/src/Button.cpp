@@ -2,13 +2,14 @@
 #include "OneButton.h"
 #include "main.h"
 #include "Debug.h"
+#include "AlarmTask.h"
 
 #define DEBUG_MSG DEBUG_MSG_BUTTON
 
 OneButton button(BUTTON_PIN, true);
 
-void ButtonDoubleClickCallback();
-
+static void ButtonDoubleClickCallback();
+static void ButtonSingleClick();
 
 void ButtonInit(){
 
@@ -22,11 +23,13 @@ void ButtonTick(){
     button.tick();
 }
 
-void ButtonSingleClick(){
+static void ButtonSingleClick(){
     DEBUG_PRINT("Button Single Click" CLI_NL);
+    if(ButtonSingleClickAlarmCallback())
+        return;
 }
 
-void ButtonDoubleClickCallback(){
+static void ButtonDoubleClickCallback(){
     DEBUG_PRINT("Button Double Click" CLI_NL);
 }
 

@@ -126,6 +126,17 @@ static void TaskAlarmTriggered(void *arg)
     vTaskDelete(NULL);
 }
 
+int8_t ButtonSingleClickAlarmCallback(){
+    if(TaskAlarmTriggeredTaskHandle!=NULL){
+        vTaskDelete(TaskAlarmTriggeredTaskHandle);
+        TaskAlarmTriggeredTaskHandle=NULL;
+        LedWakeSetDutyCycle(0.0f);
+        DEBUG_PRINT("Button was pressed while Alarm was running. Aborted the Alarm" CLI_NL);
+        return 1;
+    }
+    return 0;
+}
+
 /*
  * Sunday is 0 in tm struct
  */
