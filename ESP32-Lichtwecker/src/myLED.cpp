@@ -6,9 +6,8 @@
 #define DEBUG_MSG DEBUG_MSG_LED
 
 float MaxPwmFromTemp = 100.0f;
+float CurrentDutyCycleOfLedMatched = 0.0f;
 float CurrentDutyCycleOfLed = 0.0f;
-
-bool LedWakeReadingLight = false;
 
 void LedWakeInit()
 {
@@ -27,13 +26,14 @@ void LedWakeSetDutyCycle(float DutyCycle)
     if (DutyCycle > 100.0f)
         DutyCycle = 100.0f;
 
+    CurrentDutyCycleOfLed = DutyCycle;
     if (DutyCycle != 0.0f)
         DutyCycle = DutyCycle * 0.90f + 10;
 
     if (DutyCycle > MaxPwmFromTemp)
         DutyCycle = MaxPwmFromTemp;
 
-    CurrentDutyCycleOfLed = DutyCycle;
+    CurrentDutyCycleOfLedMatched = DutyCycle;
     WebUiLedPwmUpdateLabel(DutyCycle);
     DEBUG_PRINT("DutyCycle for PWM Driver %f" CLI_NL, DutyCycle);
     int DutyCycleValue = (int)((((float)(1 << LED_WAKE_RESOLUTION)) * DutyCycle) / 100.0f);
@@ -59,8 +59,8 @@ void LedWakeFanSetDutyCycle(float DutyCycle)
 void LedPwmMaxSet(float MaxPwm)
 {
     MaxPwmFromTemp = MaxPwm;
-    if (CurrentDutyCycleOfLed > MaxPwmFromTemp)
-        LedWakeSetDutyCycle(CurrentDutyCycleOfLed);
+    if (CurrentDutyCycleOfLedMatched > MaxPwmFromTemp)
+        LedWakeSetDutyCycle(CurrentDutyCycleOfLedMatched);
 }
 
 float LedPwmGet()
@@ -70,16 +70,14 @@ float LedPwmGet()
 
 int8_t ButtonLedSingleClickCallback()
 {
-    if (!LedWakeReadingLight)
+    if (LedPwmGet() == 0.0f)
     {
         LedWakeSetDutyCycle(2.0f);
-        LedWakeReadingLight = true;
         DEBUG_PRINT("Reading Light on" CLI_NL);
     }
     else
     {
         LedWakeSetDutyCycle(0.0f);
-        LedWakeReadingLight = false;
         DEBUG_PRINT("Reading Light off" CLI_NL);
     }
     return 1;
