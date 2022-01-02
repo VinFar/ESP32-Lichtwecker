@@ -1,6 +1,8 @@
 #ifndef MYLED_H_
 #define MYLED_H_
 
+#include "main.h"
+
 #define LED_WAKE_PIN 13
 #define LED_WAKE_FREQUENCY 200
 #define LED_WAKE_CHANNEL 0
@@ -16,5 +18,6 @@ void LedWakeSetDutyCycle(float DutyCycle);
 void LedWakeFanSetDutyCycle(float DutyCycle);
 void LedPwmMaxSet(float MaxPwm);
 float LedPwmGet();
+int8_t ButtonLedSingleClickCallback();
 
 #endif

@@ -3,6 +3,7 @@
 #include "main.h"
 #include "Debug.h"
 #include "AlarmTask.h"
+#include "myLED.h"
 
 #define DEBUG_MSG DEBUG_MSG_BUTTON
 
@@ -26,6 +27,8 @@ void ButtonTick(){
 static void ButtonSingleClick(){
     DEBUG_PRINT("Button Single Click" CLI_NL);
     if(ButtonSingleClickAlarmCallback())
+        return;
+    if(ButtonLedSingleClickCallback())
         return;
 }
 
