@@ -224,7 +224,7 @@ static void AlarmLedOffTimerNumberCallback(Control *Select,int type){
 
 static void AlarmLedPowerTimeoutCallback(TimerHandle_t xTimer)
 {
-  // LedWakeSetDutyCycle(0.0f);
+  LedWakeSetDutyCycle(0.0f);
   DEBUG_PRINT("LED PWM reset to 0%" CLI_NL);
   xTimerStop(xTimer, portMAX_DELAY);
   AlarmPrefsSaveToNvs();
