@@ -9,6 +9,7 @@
 #include "TemperatureSensor.h"
 #include "WebServerUI.h"
 #include "Button.h"
+#include "NeoPixel.h"
 
 #define DEBUG_MSG DEBUG_MSG_MAIN
 
@@ -22,6 +23,7 @@ void setup()
   LedWakeFanSetDutyCycle(50.0f);
   TempSensorInit();
   ButtonInit();
+  NeoPixelInit();
   AlarmTaskInitPrefs();
 
   xTaskCreatePinnedToCore(TaskWifi,"TaskWifi",4000,NULL,1,NULL,CONFIG_ARDUINO_RUNNING_CORE);
