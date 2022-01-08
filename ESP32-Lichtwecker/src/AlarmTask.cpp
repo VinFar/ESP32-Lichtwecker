@@ -26,15 +26,6 @@ int AlarmIndexes[7];
 
 int AlarmLedOffTimerValue;
 
-void AlarmGetAlarm(uint8_t idx, Alarm_t *Alarm)
-{
-
-    if (idx > ARRAY_LEN(Alarms))
-    {
-        DEBUG_PRINT("Requested IDX out of range" CLI_NL);
-    }
-}
-
 void AlarmTaskInitPrefs()
 {
     AlarmTaskReadStruct(Alarms, sizeof(Alarms));
