@@ -17,6 +17,9 @@ TaskHandle_t TaskAlarmTaskHandle = NULL;
 
 int AlarmCheckForAlarmTrigger(struct tm CurrentTime, int *AlarmIndex);
 static void TaskAlarmTriggered(void *arg);
+static void AlarmTaskReadStruct(Alarm_t *AlarmPtr, size_t size);
+static int AlarmTaskReadLedPowerOffTimer();
+static bool AlarmTaskReadAlarmStatusAll();
 
 Alarm_t Alarms[7] = {{Monday, "Montags"}, {Tuesday, "Dienstag"}, {Wednesday, "Mittwoch"}, {Thursday, "Donnerstag"}, {Friday, "Freitag"}, {Saturday, "Samstag"}, {Sunday, "Sonntag"}};
 int AlarmIndexes[7];
@@ -34,24 +37,10 @@ void AlarmGetAlarm(uint8_t idx, Alarm_t *Alarm)
 
 void AlarmTaskInitPrefs()
 {
+    AlarmTaskReadStruct(Alarms, sizeof(Alarms));
 
-    prefs.begin(AlarmPrefsNameSpace);
-    // prefs.putBytes(AlarmPrefsNameSpace, &Alarms, sizeof(Alarms));
-    prefs.getBytes(AlarmPrefsNameSpace, &Alarms, sizeof(Alarms));
-    DEBUG_PRINT("Alarm %s %s" CLI_NL, Alarms[0].WeekDayString, Alarms[0].AlarmOnOff ? "on" : "off");
-    DEBUG_PRINT("Alarm Rising Time %d min" CLI_NL, Alarms[0].AlarmDuration);
-    prefs.end();
-
-    prefs.begin(AlarmPrefsLedPowerOffTimer);
-    // prefs.putInt(AlarmPrefsLedPowerOffTimer,15);
-    AlarmLedOffTimerValue = prefs.getInt(AlarmPrefsLedPowerOffTimer);
-    DEBUG_PRINT("Alarm LED Power OFF Timer %d" CLI_NL, AlarmLedOffTimerValue);
-    prefs.end();
-
-    prefs.begin(AlarmPrefAlarmStatus);
-    prefs.getBytes(AlarmPrefAlarmStatus, &AlarmStatusAll, sizeof(AlarmStatusAll));
-    DEBUG_PRINT("Alarm General Status %s" CLI_NL, AlarmStatusAll ? "on" : "off");
-    prefs.end();
+    AlarmLedOffTimerValue = AlarmTaskReadLedPowerOffTimer();
+    AlarmStatusAll = AlarmTaskReadAlarmStatusAll();
 }
 
 void TaskAlarm(void *arg)
@@ -126,10 +115,12 @@ static void TaskAlarmTriggered(void *arg)
     vTaskDelete(NULL);
 }
 
-int8_t ButtonSingleClickAlarmCallback(){
-    if(TaskAlarmTriggeredTaskHandle!=NULL){
+int8_t ButtonSingleClickAlarmCallback()
+{
+    if (TaskAlarmTriggeredTaskHandle != NULL)
+    {
         vTaskDelete(TaskAlarmTriggeredTaskHandle);
-        TaskAlarmTriggeredTaskHandle=NULL;
+        TaskAlarmTriggeredTaskHandle = NULL;
         LedWakeSetDutyCycle(0.0f);
         DEBUG_PRINT("Button was pressed while Alarm was running. Aborted the Alarm" CLI_NL);
         return 1;
@@ -226,6 +217,40 @@ void AlarmLedOffTimerSaveToNVS()
     prefs.end();
 
     DEBUG_PRINT("LED Power Off Timer saved to NVs" CLI_NL);
+}
+
+static void AlarmTaskReadStruct(Alarm_t *AlarmPtr, size_t size)
+{
+
+    prefs.begin(AlarmPrefsNameSpace);
+    // prefs.putBytes(AlarmPrefsNameSpace, &Alarms, size;
+    prefs.getBytes(AlarmPrefsNameSpace, AlarmPtr, size);
+    DEBUG_PRINT("Alarm %s %s" CLI_NL, AlarmPtr[0].WeekDayString, AlarmPtr[0].AlarmOnOff ? "on" : "off");
+    DEBUG_PRINT("Alarm Rising Time %d min" CLI_NL, AlarmPtr[0].AlarmDuration);
+    prefs.end();
+}
+
+static int AlarmTaskReadLedPowerOffTimer()
+{
+    prefs.begin(AlarmPrefsLedPowerOffTimer);
+    // prefs.putInt(AlarmPrefsLedPowerOffTimer,15);
+    int ret = AlarmLedOffTimerValue = prefs.getInt(AlarmPrefsLedPowerOffTimer);
+    DEBUG_PRINT("Alarm LED Power OFF Timer %d" CLI_NL, AlarmLedOffTimerValue);
+    prefs.end();
+
+    return ret;
+}
+
+static bool AlarmTaskReadAlarmStatusAll()
+{
+
+    bool ret;
+
+    prefs.begin(AlarmPrefAlarmStatus);
+    prefs.getBytes(AlarmPrefAlarmStatus, &ret, sizeof(ret));
+    DEBUG_PRINT("Alarm General Status %s" CLI_NL, ret ? "on" : "off");
+    prefs.end();
+    return ret;
 }
 
 #undef DEBUG_MSG
