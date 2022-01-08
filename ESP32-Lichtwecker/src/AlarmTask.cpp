@@ -126,7 +126,6 @@ int AlarmCheckForAlarmTrigger(struct tm CurrentTime, int *AlarmIndex)
     DEBUG_PRINT("Checking if Alarm needs to be triggered. Current Time: %02d:%02d" CLI_NL, CurrentTime.tm_hour, CurrentTime.tm_min);
     for (int i = 0; i < ARRAY_LEN(Alarms); i++)
     {
-        DEBUG_PRINT("Checking idx %d" CLI_NL, i);
         if (Alarms[i].WeekDay == CurrentTime.tm_wday)
         {
             DEBUG_PRINT("WDay OK" CLI_NL);
