@@ -79,7 +79,6 @@ TaskHandle_t TaskAlarmGetTaskHandle()
 static void TaskAlarmTriggered(void *arg)
 {
     uint32_t IndexOfAlarmStruct = (uint32_t) * ((uint32_t *)arg);
-    float CurrentPwmLedWake = 0.0f;
     float CurrentPwm = 1.0f;
     float MaximumPwm = Alarms[IndexOfAlarmStruct].AlarmMaxLight;
     uint32_t EndTicks = xTaskGetTickCount() + pdMS_TO_TICKS(Alarms[IndexOfAlarmStruct].AlarmDuration * 60 * 1000);
@@ -171,13 +170,16 @@ int8_t AlarmStatusSaveToNvs()
     if (!prefs.begin(AlarmPrefAlarmStatus, false))
     {
         DEBUG_PRINT("Could not open NameSpace" CLI_NL);
+        return -1;
     }
     if (!prefs.putBytes(AlarmPrefAlarmStatus, &AlarmStatusAll, sizeof(AlarmStatusAll)))
     {
         DEBUG_PRINT("Could not write Namespace %s" CLI_NL, AlarmStatusAll);
+        return -1;
     }
     prefs.end();
     DEBUG_PRINT("Wrote Alarm Status to NVS" CLI_NL);
+    return 0;
 }
 
 void AlarmSetLedPower(uint8_t Index, float DC)
