@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "*.tcc": "cpp"
+        "*.tcc": "cpp",
+        "dport_reg.h": "c",
+        "rmt_reg.h": "c"
     }
 }
