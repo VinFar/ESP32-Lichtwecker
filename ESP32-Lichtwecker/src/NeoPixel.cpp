@@ -12,6 +12,9 @@ uint32_t getPixelColorHsv(
 void TaskNeoPixel(void *arg);
 static void WebUiRGBSwitcherCallback(Control *Switcher, int value);
 static void WebUiRGBSliderCallback(Control *Slider, int value);
+static void WebUiRGBEffectSelect(Control *Switcher, int value);
+static int RgbEffectGetIndex(const char *Effect);
+static int RainbowCircleEffect(void *arg);
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(CNT, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
 
@@ -19,6 +22,7 @@ static const char *WebUiRGBTabName = "RGB Light";
 
 uint16_t WebUiRGBTab;
 uint16_t WebUiRGBEffectSwitchID;
+uint16_t WebUiRGBEffectSelector;
 
 uint16_t WebUiRGBSliderRed;
 uint16_t WebUiRGBSliderGreen;
@@ -32,23 +36,41 @@ uint8_t NeoPixelCurrentBrightness;
 
 int RGBEffectStatus = false;
 static bool ClearedEffect = false;
-static bool UpdateLeds=true;
+static bool UpdateLeds = true;
+int (*CurrentEffectFunction)(void *arg);
+
+typedef struct
+{
+    const char *EffectName;
+    int (*CallBack)(void *arg);
+} RgbEffect_t;
+
+const RgbEffect_t RgbEffects[] = {{"Rainbow", RainbowCircleEffect},
+                            {"FadeIn/FadeOut", RainbowCircleEffect}};
 
 void NeoPixelInit()
 {
 
     strip.begin();
-    strip.setBrightness(100);
+    strip.setBrightness(255);
     strip.clear();
     strip.show();
     DEBUG_PRINT("Init NeoPixels" CLI_NL);
     xTaskCreatePinnedToCore(TaskNeoPixel, "NeoPixelTask", 8000, NULL, 4, NULL, CONFIG_ARDUINO_RUNNING_CORE);
+    CurrentEffectFunction =RainbowCircleEffect;
 }
 
 void WebUiRGBInit()
 {
 
     WebUiRGBEffectSwitchID = ESPUI.addControl(ControlType::Switcher, "Effekt Ein/aus", "", ControlColor::Alizarin, WebUiRGBTab, &WebUiRGBSwitcherCallback);
+
+    WebUiRGBEffectSelector = ESPUI.addControl(ControlType::Select, "Effekt auswählen", "", ControlColor::Alizarin, WebUiRGBTab, &WebUiRGBEffectSelect);
+
+    for (int i = 0; i < ARRAY_LEN(RgbEffects); i++)
+    {
+        ESPUI.addControl(ControlType::Option, RgbEffects[i].EffectName, RgbEffects[i].EffectName, ControlColor::Alizarin, WebUiRGBEffectSelector);
+    }
 
     WebUiRGBSliderRed = ESPUI.addControl(ControlType::Slider, "Rot", "0", ControlColor::Alizarin, WebUiRGBTab, &WebUiRGBSliderCallback);
 
@@ -65,6 +87,27 @@ void WebUiRGBCreate()
     DEBUG_PRINT("Created RGB Tab" CLI_NL);
 }
 
+static void WebUiRGBEffectSelect(Control *Switcher, int value)
+{
+
+    DEBUG_PRINT("Selected %s" CLI_NL, Switcher->value.c_str());
+    int IdxForEffectArray = RgbEffectGetIndex(Switcher->value.c_str());
+    CurrentEffectFunction = RgbEffects[IdxForEffectArray].CallBack;
+}
+
+static int RgbEffectGetIndex(const char* Effect)
+{
+
+    for (int i = 0; i < ARRAY_LEN(RgbEffects); i++)
+    {
+        if (!strcmp(RgbEffects[i].EffectName, Effect))
+        {
+            return i;
+        }
+    }
+    return 0;
+}
+
 static void WebUiRGBSwitcherCallback(Control *Switcher, int value)
 {
     int valueFromSwitcher = Switcher->value.toInt();
@@ -77,7 +120,7 @@ static void WebUiRGBSliderCallback(Control *Slider, int value)
 {
 
     float valueFromSlider = Slider->value.toFloat() * 2.55f;
-    //DEBUG_PRINT("Value from Silder: %f" CLI_NL, valueFromSlider);
+    // DEBUG_PRINT("Value from Silder: %f" CLI_NL, valueFromSlider);
     int ID = Slider->id;
 
     if (valueFromSlider > 255.0f)
@@ -108,6 +151,9 @@ static void WebUiRGBSliderCallback(Control *Slider, int value)
     {
         NeoPixelCurrentBrightness = (uint8_t)(valueFromSlider);
         DEBUG_PRINT("NeoPixel Brightness set to %d" CLI_NL, WebUiRGBSliderBrightness);
+        strip.setBrightness(NeoPixelCurrentBrightness);
+        UpdateLeds = true;
+        return;
     }
     else
     {
@@ -115,24 +161,28 @@ static void WebUiRGBSliderCallback(Control *Slider, int value)
     }
     uint32_t color = strip.Color(NeoPixelCurrentRed, NeoPixelCurrentGreen, NeoPixelCurrentBlue);
     strip.fill(color);
-    strip.setBrightness(NeoPixelCurrentBrightness);
-    UpdateLeds=true;
+    UpdateLeds = true;
+}
+
+static int RainbowCircleEffect(void *arg)
+{
+    static int position = 0;
+    for (int i = 0; i < CNT; i++)
+        strip.setPixelColor((i + position) % CNT, getPixelColorHsv(i, i * (MAXHUE / CNT), 255, 100));
+    position++;
+    position %= CNT;
+    strip.show();
 }
 
 void TaskNeoPixel(void *arg)
 {
-    int position = 0;
     DEBUG_PRINT("Created Task Neo Pixel" CLI_NL);
 
     while (1)
     {
         if (RGBEffectStatus)
         {
-            for (int i = 0; i < CNT; i++)
-                strip.setPixelColor((i + position) % CNT, getPixelColorHsv(i, i * (MAXHUE / CNT), 255, 100));
-            position++;
-            position %= CNT;
-            strip.show();
+            CurrentEffectFunction(NULL);
         }
         else
         {
@@ -142,8 +192,9 @@ void TaskNeoPixel(void *arg)
                 strip.show();
                 ClearedEffect = true;
             }
-            if(UpdateLeds){
-                UpdateLeds=false;
+            if (UpdateLeds)
+            {
+                UpdateLeds = false;
                 strip.show();
             }
         }
