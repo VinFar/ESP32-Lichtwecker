@@ -77,7 +77,7 @@ static void WebUiRGBSliderCallback(Control *Slider, int value)
 {
 
     float valueFromSlider = Slider->value.toFloat() * 2.55f;
-    DEBUG_PRINT("Value from Silder: %f" CLI_NL, valueFromSlider);
+    //DEBUG_PRINT("Value from Silder: %f" CLI_NL, valueFromSlider);
     int ID = Slider->id;
 
     if (valueFromSlider > 255.0f)
