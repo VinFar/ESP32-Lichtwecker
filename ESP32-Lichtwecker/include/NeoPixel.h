@@ -6,5 +6,7 @@
 void NeoPixelInit();
 void WebUiRGBInit();
 void WebUiRGBCreate();
+void TaskNeoPixel(void *arg);
+void TaskNeoPixelStart();
 
 #endif

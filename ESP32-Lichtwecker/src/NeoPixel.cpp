@@ -9,12 +9,16 @@
 
 uint32_t getPixelColorHsv(
     uint16_t n, uint16_t h, uint8_t s, uint8_t v);
-void TaskNeoPixel(void *arg);
 static void WebUiRGBSwitcherCallback(Control *Switcher, int value);
 static void WebUiRGBSliderCallback(Control *Slider, int value);
 static void WebUiRGBEffectSelect(Control *Switcher, int value);
 static int RgbEffectGetIndex(const char *Effect);
+void showStrip();
+void setAll(byte red, byte green, byte blue);
+void setPixel(int Pixel, byte red, byte green, byte blue);
+
 static int RainbowCircleEffect(void *arg);
+int FadeInFadeOut(void *arg);
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(CNT, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
 
@@ -37,7 +41,8 @@ uint8_t NeoPixelCurrentBrightness;
 int RGBEffectStatus = false;
 static bool ClearedEffect = false;
 static bool UpdateLeds = true;
-int (*CurrentEffectFunction)(void *arg);
+int (*CurrentEffectFunction)(void *arg) = RainbowCircleEffect;
+TaskHandle_t TaskNeoPixelTaskHandle;
 
 typedef struct
 {
@@ -46,18 +51,18 @@ typedef struct
 } RgbEffect_t;
 
 const RgbEffect_t RgbEffects[] = {{"Rainbow", RainbowCircleEffect},
-                            {"FadeIn/FadeOut", RainbowCircleEffect}};
+                                  {"FadeIn/FadeOut", FadeInFadeOut}};
 
 void NeoPixelInit()
 {
 
     strip.begin();
-    strip.setBrightness(255);
+    strip.setBrightness(127);
     strip.clear();
     strip.show();
     DEBUG_PRINT("Init NeoPixels" CLI_NL);
-    xTaskCreatePinnedToCore(TaskNeoPixel, "NeoPixelTask", 8000, NULL, 4, NULL, CONFIG_ARDUINO_RUNNING_CORE);
-    CurrentEffectFunction =RainbowCircleEffect;
+
+    CurrentEffectFunction = RainbowCircleEffect;
 }
 
 void WebUiRGBInit()
@@ -93,9 +98,11 @@ static void WebUiRGBEffectSelect(Control *Switcher, int value)
     DEBUG_PRINT("Selected %s" CLI_NL, Switcher->value.c_str());
     int IdxForEffectArray = RgbEffectGetIndex(Switcher->value.c_str());
     CurrentEffectFunction = RgbEffects[IdxForEffectArray].CallBack;
+    vTaskDelete(TaskNeoPixelTaskHandle);
+    TaskNeoPixelStart();
 }
 
-static int RgbEffectGetIndex(const char* Effect)
+static int RgbEffectGetIndex(const char *Effect)
 {
 
     for (int i = 0; i < ARRAY_LEN(RgbEffects); i++)
@@ -172,12 +179,57 @@ static int RainbowCircleEffect(void *arg)
     position++;
     position %= CNT;
     strip.show();
+    vTaskDelay(pdMS_TO_TICKS(100));
+}
+
+int FadeInFadeOut(void *arg)
+{
+    for (int j = 0; j < 3; j++)
+    {
+        // Fade IN
+        for (int k = 0; k < 256; k++)
+        {
+            switch (j)
+            {
+            case 0:
+                setAll(k, 0, 0);
+                break;
+            case 1:
+                setAll(0, k, 0);
+                break;
+            case 2:
+                setAll(0, 0, k);
+                break;
+            }
+            showStrip();
+            vTaskDelay(pdMS_TO_TICKS(3));
+        }
+        // Fade OUT
+        for (int k = 255; k >= 0; k--)
+        {
+            switch (j)
+            {
+            case 0:
+                setAll(k, 0, 0);
+                break;
+            case 1:
+                setAll(0, k, 0);
+                break;
+            case 2:
+                setAll(0, 0, k);
+                break;
+            }
+            showStrip();
+            vTaskDelay(pdMS_TO_TICKS(3));
+        }
+    }
+    return 0;
 }
 
 void TaskNeoPixel(void *arg)
 {
     DEBUG_PRINT("Created Task Neo Pixel" CLI_NL);
-
+    TaskNeoPixelTaskHandle = xTaskGetCurrentTaskHandle();
     while (1)
     {
         if (RGBEffectStatus)
@@ -196,11 +248,11 @@ void TaskNeoPixel(void *arg)
             {
                 UpdateLeds = false;
                 strip.show();
+                vTaskDelay(pdMS_TO_TICKS(100));
             }
         }
         // vTaskSuspendAll();
         // xTaskResumeAll();
-        vTaskDelay(pdMS_TO_TICKS(50));
     }
 }
 
@@ -292,6 +344,30 @@ uint32_t getPixelColorHsv(
         }
     }
     return ((uint32_t)r << 16) | ((uint32_t)g << 8) | b;
+}
+
+void showStrip()
+{
+    strip.show();
+}
+
+void setPixel(int Pixel, byte red, byte green, byte blue)
+{
+    strip.setPixelColor(Pixel, strip.Color(red, green, blue));
+}
+
+void setAll(byte red, byte green, byte blue)
+{
+    for (int i = 0; i < CNT; i++)
+    {
+        setPixel(i, red, green, blue);
+    }
+    showStrip();
+}
+
+void TaskNeoPixelStart()
+{
+    xTaskCreatePinnedToCore(TaskNeoPixel, "NeoPixelTask", 4000, NULL, 3, NULL, CONFIG_ARDUINO_RUNNING_CORE);
 }
 
 #undef DEBUG_MSG
