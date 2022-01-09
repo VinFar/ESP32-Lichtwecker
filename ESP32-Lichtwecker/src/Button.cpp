@@ -28,6 +28,7 @@ void ButtonInit()
     button.attachLongPressStop(ButtonLongPressEnd);
 
     ButtonTimer = xTimerCreate("TimerButtonLongPress", pdMS_TO_TICKS(100), pdTRUE, (void *)0, ButtonTimerCallbackFunction);
+    DEBUG_PRINT("Button Init" CLI_NL);
 }
 
 static void ButtonLongPressStart()

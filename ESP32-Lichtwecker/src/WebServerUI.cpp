@@ -7,6 +7,7 @@
 #include "myLED.h"
 #include "WebServerAlarmTab.h"
 #include "WebServerStatusTab.h"
+#include "NeoPixel.h"
 
 #define DEBUG_MSG DEBUG_MSG_WEBUI
 
@@ -54,7 +55,11 @@ bool WebUiIsStarted()
 
 void WebUiInitTabs()
 {
+  WebUiAlarmTabCreate();
+  WebUiRGBCreate();
+  WebUiStatusTabCreate();
   WebUiAlarmTabInit();
+  WebUiRGBInit();
   WebUiStatusTabInit();
 }
 #undef DEBUG_MSG

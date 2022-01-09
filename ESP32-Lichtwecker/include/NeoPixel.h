@@ -4,5 +4,7 @@
 #define NEOPIXEL_PIN 32
 
 void NeoPixelInit();
+void WebUiRGBInit();
+void WebUiRGBCreate();
 
 #endif

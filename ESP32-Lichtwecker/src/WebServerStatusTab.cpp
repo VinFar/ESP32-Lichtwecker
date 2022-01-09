@@ -15,12 +15,14 @@ uint16_t WebUiDutyCycleLedLabelId;
 
 void WebUiStatusTabInit()
 {
-  DEBUG_PRINT("Created Status Tab" CLI_NL);
-  WebUiStatusTab = ESPUI.addControl(ControlType::Tab, WebUiStatusTabName, WebUiStatusTabName);
-
   WebUiTemperatureLabelID = ESPUI.addControl(ControlType::Label, "Temperature (°C)", "0.0", ControlColor::Alizarin, WebUiStatusTab);
   String LedPwm = String(LedPwmGet(), 2);
   WebUiDutyCycleLedLabelId = ESPUI.addControl(ControlType::Label, "LED Power (%)", LedPwm, ControlColor::Alizarin, WebUiStatusTab);
+}
+
+void WebUiStatusTabCreate(){
+  WebUiStatusTab = ESPUI.addControl(ControlType::Tab, WebUiStatusTabName, WebUiStatusTabName);
+  DEBUG_PRINT("Created Status Tab" CLI_NL);
 }
 
 uint16_t WebUiGetTemperatureLabelId()

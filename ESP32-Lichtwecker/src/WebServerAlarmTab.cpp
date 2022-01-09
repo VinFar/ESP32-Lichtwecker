@@ -40,7 +40,6 @@ void WebUiAlarmTabInit()
 {
   DEBUG_PRINT("Created Alarm Tab" CLI_NL);
 
-  WebUiAlarmTab = ESPUI.addControl(ControlType::Tab, WebUiAlarmTabName, WebUiAlarmTabName);
   WebUiAlarmStatusSwitcherId = ESPUI.addControl(ControlType::Switcher, WebUiAlarmOnOffButtonLabel, "", ControlColor::Turquoise, WebUiAlarmTab, &AlarmStatusSwitchCallback);
   String LedPowerString = String(Alarms[0].AlarmMaxLight,0);
   WebUiAlarmLedPowerSliderId = ESPUI.addControl(ControlType::Slider, WebUiAlarmLedPower, LedPowerString, ControlColor::Alizarin, WebUiAlarmTab, &AlarmLedPowerSliderCallback);
@@ -54,6 +53,10 @@ void WebUiAlarmTabInit()
   {
     WebUiAddAlarm(&Alarms[i]);
   }
+}
+
+void WebUiAlarmTabCreate(){
+  WebUiAlarmTab = ESPUI.addControl(ControlType::Tab, WebUiAlarmTabName, WebUiAlarmTabName);
 }
 
 static void AlarmOnOffSwitchCallback(Control *Button, int value)
