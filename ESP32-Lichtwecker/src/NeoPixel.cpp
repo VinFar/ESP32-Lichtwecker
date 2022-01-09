@@ -19,6 +19,7 @@ void setPixel(int Pixel, byte red, byte green, byte blue);
 
 static int RainbowCircleEffect(void *arg);
 int FadeInFadeOut(void *arg);
+int Strobe(void *arg);
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(CNT, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
 
@@ -50,8 +51,9 @@ typedef struct
     int (*CallBack)(void *arg);
 } RgbEffect_t;
 
-const RgbEffect_t RgbEffects[] = {{"Rainbow", RainbowCircleEffect},
-                                  {"FadeIn/FadeOut", FadeInFadeOut}};
+const RgbEffect_t RgbEffects[] = {{"RainbowCircle", RainbowCircleEffect},
+                                  {"FadeIn/FadeOut", FadeInFadeOut},
+                                  {"Strobe",Strobe}};
 
 void NeoPixelInit()
 {
@@ -171,61 +173,6 @@ static void WebUiRGBSliderCallback(Control *Slider, int value)
     UpdateLeds = true;
 }
 
-static int RainbowCircleEffect(void *arg)
-{
-    static int position = 0;
-    for (int i = 0; i < CNT; i++)
-        strip.setPixelColor((i + position) % CNT, getPixelColorHsv(i, i * (MAXHUE / CNT), 255, 100));
-    position++;
-    position %= CNT;
-    strip.show();
-    vTaskDelay(pdMS_TO_TICKS(100));
-}
-
-int FadeInFadeOut(void *arg)
-{
-    for (int j = 0; j < 3; j++)
-    {
-        // Fade IN
-        for (int k = 0; k < 256; k++)
-        {
-            switch (j)
-            {
-            case 0:
-                setAll(k, 0, 0);
-                break;
-            case 1:
-                setAll(0, k, 0);
-                break;
-            case 2:
-                setAll(0, 0, k);
-                break;
-            }
-            showStrip();
-            vTaskDelay(pdMS_TO_TICKS(3));
-        }
-        // Fade OUT
-        for (int k = 255; k >= 0; k--)
-        {
-            switch (j)
-            {
-            case 0:
-                setAll(k, 0, 0);
-                break;
-            case 1:
-                setAll(0, k, 0);
-                break;
-            case 2:
-                setAll(0, 0, k);
-                break;
-            }
-            showStrip();
-            vTaskDelay(pdMS_TO_TICKS(3));
-        }
-    }
-    return 0;
-}
-
 void TaskNeoPixel(void *arg)
 {
     DEBUG_PRINT("Created Task Neo Pixel" CLI_NL);
@@ -251,8 +198,6 @@ void TaskNeoPixel(void *arg)
                 vTaskDelay(pdMS_TO_TICKS(100));
             }
         }
-        // vTaskSuspendAll();
-        // xTaskResumeAll();
     }
 }
 
@@ -348,7 +293,9 @@ uint32_t getPixelColorHsv(
 
 void showStrip()
 {
+    // vTaskSuspendAll();
     strip.show();
+    // xTaskResumeAll();
 }
 
 void setPixel(int Pixel, byte red, byte green, byte blue)
@@ -368,6 +315,71 @@ void setAll(byte red, byte green, byte blue)
 void TaskNeoPixelStart()
 {
     xTaskCreatePinnedToCore(TaskNeoPixel, "NeoPixelTask", 4000, NULL, 3, NULL, CONFIG_ARDUINO_RUNNING_CORE);
+}
+
+
+static int RainbowCircleEffect(void *arg)
+{
+    static int position = 0;
+    for (int i = 0; i < CNT; i++)
+        strip.setPixelColor((i + position) % CNT, getPixelColorHsv(i, i * (MAXHUE / CNT), 255, 100));
+    position++;
+    position %= CNT;
+    showStrip();
+    vTaskDelay(pdMS_TO_TICKS(100));
+}
+
+int FadeInFadeOut(void *arg)
+{
+    for (int j = 0; j < 3; j++)
+    {
+        // Fade IN
+        for (int k = 0; k < 256; k++)
+        {
+            switch (j)
+            {
+            case 0:
+                setAll(k, 0, 0);
+                break;
+            case 1:
+                setAll(0, k, 0);
+                break;
+            case 2:
+                setAll(0, 0, k);
+                break;
+            }
+            showStrip();
+            vTaskDelay(pdMS_TO_TICKS(3));
+        }
+        // Fade OUT
+        for (int k = 255; k >= 0; k--)
+        {
+            switch (j)
+            {
+            case 0:
+                setAll(k, 0, 0);
+                break;
+            case 1:
+                setAll(0, k, 0);
+                break;
+            case 2:
+                setAll(0, 0, k);
+                break;
+            }
+            showStrip();
+            vTaskDelay(pdMS_TO_TICKS(3));
+        }
+    }
+    return 0;
+}
+
+int Strobe(void *arg){
+    setAll(0xff,0xff,0xff);
+    showStrip();
+    vTaskDelay(pdMS_TO_TICKS(100));
+    setAll(0,0,0);
+    showStrip();
+    vTaskDelay(pdMS_TO_TICKS(100));
 }
 
 #undef DEBUG_MSG
