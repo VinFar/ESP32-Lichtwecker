@@ -201,30 +201,7 @@ void TaskNeoPixel(void *arg)
 {
     DEBUG_PRINT("Created Task Neo Pixel" CLI_NL);
     TaskNeoPixelTaskHandle = xTaskGetCurrentTaskHandle();
-    while (1)
-    {
-        if (RGBEffectStatus)
-        {
-            ws2812fx.service();
-            vTaskDelay(pdMS_TO_TICKS(10));
-            //CurrentEffectFunction(NULL);
-        }
-        else
-        {
-            if (!ClearedEffect)
-            {
-                ws2812fx.clear();
-                ws2812fx.show();
-                ClearedEffect = true;
-            }
-            if (UpdateLeds)
-            {
-                UpdateLeds = false;
-                ws2812fx.show();
-                vTaskDelay(pdMS_TO_TICKS(100));
-            }
-        }
-    }
+    
 }
 
 uint32_t getPixelColorHsv(
@@ -340,7 +317,7 @@ void setAll(byte red, byte green, byte blue)
 
 void TaskNeoPixelStart()
 {
-    xTaskCreatePinnedToCore(TaskNeoPixel, "NeoPixelTask", 4000, NULL, 3, NULL, CONFIG_ARDUINO_RUNNING_CORE);
+    // xTaskCreatePinnedToCore(TaskNeoPixel, "NeoPixelTask", 4000, NULL, 3, NULL, CONFIG_ARDUINO_RUNNING_CORE);
 }
 
 static int RainbowCircleEffect(void *arg)
@@ -411,6 +388,29 @@ int Strobe(void *arg)
     vTaskDelay(pdMS_TO_TICKS((int)(RGBEffectCurrentDelay * 50)));
 }
 
-
+void NeoPixelTick(){
+    while (1)
+    {
+        if (RGBEffectStatus)
+        {
+            ws2812fx.service();
+            //CurrentEffectFunction(NULL);
+        }
+        else
+        {
+            if (!ClearedEffect)
+            {
+                ws2812fx.clear();
+                ws2812fx.show();
+                ClearedEffect = true;
+            }
+            if (UpdateLeds)
+            {
+                UpdateLeds = false;
+                ws2812fx.show();
+            }
+        }
+    }
+}
 
 #undef DEBUG_MSG

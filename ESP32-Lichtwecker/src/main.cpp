@@ -30,11 +30,11 @@ void setup()
   
 }
 
-
 void loop()
 {
   DnsServerProcessNextRequest();
   ButtonTick();
+  NeoPixelTick();
 }
 
 #undef DEBUG_MSG
