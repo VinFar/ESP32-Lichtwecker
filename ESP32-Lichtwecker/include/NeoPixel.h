@@ -9,5 +9,6 @@ void WebUiRGBCreate();
 void TaskNeoPixel(void *arg);
 void TaskNeoPixelStart();
 void NeoPixelTick();
+int ButtonNeoPixelSingleClickCallback();
 
 #endif

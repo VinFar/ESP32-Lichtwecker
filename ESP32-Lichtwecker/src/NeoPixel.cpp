@@ -389,8 +389,7 @@ int Strobe(void *arg)
 }
 
 void NeoPixelTick(){
-    while (1)
-    {
+
         if (RGBEffectStatus)
         {
             ws2812fx.service();
@@ -410,7 +409,17 @@ void NeoPixelTick(){
                 ws2812fx.show();
             }
         }
+}
+
+int ButtonNeoPixelSingleClickCallback(){
+
+    if(RGBEffectStatus){
+        RGBEffectStatus=false;
+        DEBUG_PRINT("RGB Effect off over Button" CLI_NL);
+        return 1;
     }
+    return 0;
+
 }
 
 #undef DEBUG_MSG

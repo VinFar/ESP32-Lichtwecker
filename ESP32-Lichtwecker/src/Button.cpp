@@ -4,6 +4,7 @@
 #include "Debug.h"
 #include "AlarmTask.h"
 #include "myLED.h"
+#include "NeoPixel.h"
 
 #define DEBUG_MSG DEBUG_MSG_BUTTON
 
@@ -22,10 +23,12 @@ void ButtonInit()
 
     pinMode(BUTTON_PIN, INPUT);
 
+    
     button.attachDoubleClick(ButtonDoubleClickCallback);
     button.attachClick(ButtonSingleClick);
     button.attachLongPressStart(ButtonLongPressStart);
     button.attachLongPressStop(ButtonLongPressEnd);
+    // button.setClickTicks(600);
 
     ButtonTimer = xTimerCreate("TimerButtonLongPress", pdMS_TO_TICKS(100), pdTRUE, (void *)0, ButtonTimerCallbackFunction);
     DEBUG_PRINT("Button Init" CLI_NL);
@@ -78,8 +81,9 @@ static void ButtonSingleClick()
     DEBUG_PRINT("Button Single Click" CLI_NL);
     if (ButtonSingleClickAlarmCallback())
         return;
-    if (ButtonLedSingleClickCallback())
-        return;
+    ButtonLedSingleClickCallback();
+    ButtonNeoPixelSingleClickCallback();
+    
 }
 
 static void ButtonDoubleClickCallback()
