@@ -30,6 +30,7 @@ void DebugPrintFunction(DebugPrefix_t DebugPrefix,
 #define DEBUG_PREFIX_TEMP		"[TEMP] "
 #define DEBUG_PREFIX_BUTTON		"[BUTTON] "
 #define DEBUG_PREFIX_NEOPIXEL	"[NEOPIXEL] "
+#define DEBUG_PREFIX_SINRIC		"[SINRIC] "
 
 #define DEBUG_MSG_MAIN (DebugPrefixes[0])
 #define DEBUG_MSG_WIFI (DebugPrefixes[1])
@@ -40,8 +41,9 @@ void DebugPrintFunction(DebugPrefix_t DebugPrefix,
 #define DEBUG_MSG_TEMP (DebugPrefixes[6])
 #define DEBUG_MSG_BUTTON (DebugPrefixes[7])
 #define DEBUG_MSG_NEOPIXEL (DebugPrefixes[8])
+#define DEBUG_MSG_SINRIC (DebugPrefixes[9])
 
-extern DebugPrefix_t DebugPrefixes[9];
+extern DebugPrefix_t DebugPrefixes[10];
 
 
 #endif

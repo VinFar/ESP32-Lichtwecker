@@ -4,6 +4,7 @@
 #include "myRTC.h"
 #include "WebServerUI.h"
 #include "NeoPixel.h"
+#include "SinricSmart.h"
 
 #define DEBUG_MSG DEBUG_MSG_WIFI
 
@@ -54,6 +55,7 @@ static void WifiConnectedCallback(){
   vTaskDelay(pdMS_TO_TICKS(1000));
   xTaskCreatePinnedToCore(TaskWebUI,"TaskWebUI",4000,NULL,1,NULL,CONFIG_ARDUINO_RUNNING_CORE);
   xTaskCreatePinnedToCore(TaskSNTP,"TaskSNTP",4000,NULL,1,NULL,CONFIG_ARDUINO_RUNNING_CORE);
+  setupSinricPro();
   TaskNeoPixelStart();
 }
 

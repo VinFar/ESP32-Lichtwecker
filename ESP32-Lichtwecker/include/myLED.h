@@ -19,5 +19,7 @@ void LedWakeFanSetDutyCycle(float DutyCycle);
 void LedPwmMaxSet(float MaxPwm);
 float LedPwmGet();
 int8_t ButtonLedSingleClickCallback();
+int8_t LedReadLightOn();
+int8_t LedReadLightOff();
 
 #endif

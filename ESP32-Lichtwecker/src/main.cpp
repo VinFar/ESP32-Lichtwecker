@@ -10,6 +10,7 @@
 #include "WebServerUI.h"
 #include "Button.h"
 #include "NeoPixel.h"
+#include "SinricSmart.h"
 
 #define DEBUG_MSG DEBUG_MSG_MAIN
 
@@ -25,8 +26,11 @@ void setup()
   ButtonInit();
   NeoPixelInit();
   AlarmTaskInitPrefs();
+  
 
   xTaskCreatePinnedToCore(TaskWifi,"TaskWifi",4000,NULL,1,NULL,CONFIG_ARDUINO_RUNNING_CORE);
+
+  //ESPUI.prepareFileSystem();
   
 }
 
@@ -35,6 +39,7 @@ void loop()
   DnsServerProcessNextRequest();
   ButtonTick();
   NeoPixelTick();
+  SinricHandle();
 }
 
 #undef DEBUG_MSG
