@@ -15,7 +15,7 @@ static void WebUiRGBSliderCallback(Control *Slider, int value);
 static void WebUiRGBEffectSelect(Control *Switcher, int value);
 static int RgbEffectGetIndex(const char *Effect);
 void showStrip();
-void setAll(byte red, byte green, byte blue);
+
 void setPixel(int Pixel, byte red, byte green, byte blue);
 void WebUiSliderSpeedCallback(Control *Slider, int value);
 
@@ -85,10 +85,9 @@ void WebUiRGBInit()
 
     WebUiRGBEffectSelector = ESPUI.addControl(ControlType::Select, "Effekt auswählen", "", ControlColor::Alizarin, WebUiRGBTab, &WebUiRGBEffectSelect);
 
-
-    for (int i = 0; i < ws2812fx.getModeCount()-8; i++)
+    for (int i = 0; i < ws2812fx.getModeCount() - 8; i++)
     {
-        ESPUI.addControl(ControlType::Option, (const char*)ws2812fx.getModeName(i),(const char*)ws2812fx.getModeName(i) , ControlColor::Alizarin, WebUiRGBEffectSelector);
+        ESPUI.addControl(ControlType::Option, (const char *)ws2812fx.getModeName(i), (const char *)ws2812fx.getModeName(i), ControlColor::Alizarin, WebUiRGBEffectSelector);
     }
 
     WebUiRGBSliderSpeed = ESPUI.addControl(ControlType::Slider, "Geschwindigkeit", "50", ControlColor::Alizarin, WebUiRGBTab, &WebUiSliderSpeedCallback);
@@ -105,7 +104,7 @@ void WebUiRGBInit()
 void WebUiSliderSpeedCallback(Control *Slider, int value)
 {
     RGBEffectCurrentDelay = -Slider->value.toFloat() * 0.018 + 1.9;
-    ws2812fx.setSpeed((int)(5000.0f*RGBEffectCurrentDelay));
+    ws2812fx.setSpeed((int)(5000.0f * RGBEffectCurrentDelay));
     DEBUG_PRINT("Geschw. Mult.: %.3f" CLI_NL, RGBEffectCurrentDelay);
 }
 
@@ -120,18 +119,18 @@ static void WebUiRGBEffectSelect(Control *Switcher, int value)
 
     int IdxForEffectArray = RgbEffectGetIndex(Switcher->value.c_str());
     ws2812fx.setMode(IdxForEffectArray);
-    DEBUG_PRINT("Selected %s. IDX %d" CLI_NL, Switcher->value.c_str(),IdxForEffectArray);
-    //CurrentEffectFunction = RgbEffects[IdxForEffectArray].CallBack;
-    // vTaskDelete(TaskNeoPixelTaskHandle);
-    // TaskNeoPixelStart();
+    DEBUG_PRINT("Selected %s. IDX %d" CLI_NL, Switcher->value.c_str(), IdxForEffectArray);
+    // CurrentEffectFunction = RgbEffects[IdxForEffectArray].CallBack;
+    //  vTaskDelete(TaskNeoPixelTaskHandle);
+    //  TaskNeoPixelStart();
 }
 
 static int RgbEffectGetIndex(const char *Effect)
 {
 
-    for (int i = 0; i < ws2812fx.getModeCount()-8; i++)
+    for (int i = 0; i < ws2812fx.getModeCount() - 8; i++)
     {
-        if (!strcmp((const char*)ws2812fx.getModeName(i), Effect))
+        if (!strcmp((const char *)ws2812fx.getModeName(i), Effect))
         {
             return i;
         }
@@ -191,9 +190,9 @@ static void WebUiRGBSliderCallback(Control *Slider, int value)
     {
         return;
     }
-     uint32_t color = ws2812fx.Color(NeoPixelCurrentRed, NeoPixelCurrentGreen, NeoPixelCurrentBlue);
-     ws2812fx.fill(color);
-     ws2812fx.setColor(color);
+    uint32_t color = ws2812fx.Color(NeoPixelCurrentRed, NeoPixelCurrentGreen, NeoPixelCurrentBlue);
+    ws2812fx.fill(color);
+    ws2812fx.setColor(color);
     UpdateLeds = true;
 }
 
@@ -201,7 +200,6 @@ void TaskNeoPixel(void *arg)
 {
     DEBUG_PRINT("Created Task Neo Pixel" CLI_NL);
     TaskNeoPixelTaskHandle = xTaskGetCurrentTaskHandle();
-    
 }
 
 uint32_t getPixelColorHsv(
@@ -296,9 +294,8 @@ uint32_t getPixelColorHsv(
 
 void showStrip()
 {
-    // vTaskSuspendAll();
+
     ws2812fx.show();
-    // xTaskResumeAll();
 }
 
 void setPixel(int Pixel, byte red, byte green, byte blue)
@@ -308,11 +305,11 @@ void setPixel(int Pixel, byte red, byte green, byte blue)
 
 void setAll(byte red, byte green, byte blue)
 {
-    for (int i = 0; i < CNT; i++)
-    {
-        setPixel(i, red, green, blue);
-    }
-    showStrip();
+    uint32_t color = ws2812fx.Color(red, green, blue);
+    ws2812fx.setBrightness(255);
+    ws2812fx.fill(color);
+    ws2812fx.setColor(color);
+    UpdateLeds = true;
 }
 
 void TaskNeoPixelStart()
@@ -388,38 +385,40 @@ int Strobe(void *arg)
     vTaskDelay(pdMS_TO_TICKS((int)(RGBEffectCurrentDelay * 50)));
 }
 
-void NeoPixelTick(){
+void NeoPixelTick()
+{
 
-        if (RGBEffectStatus)
+    if (RGBEffectStatus)
+    {
+        ws2812fx.service();
+        // CurrentEffectFunction(NULL);
+    }
+    else
+    {
+        if (!ClearedEffect)
         {
-            ws2812fx.service();
-            //CurrentEffectFunction(NULL);
+            ws2812fx.clear();
+            ws2812fx.show();
+            ClearedEffect = true;
         }
-        else
+        if (UpdateLeds)
         {
-            if (!ClearedEffect)
-            {
-                ws2812fx.clear();
-                ws2812fx.show();
-                ClearedEffect = true;
-            }
-            if (UpdateLeds)
-            {
-                UpdateLeds = false;
-                ws2812fx.show();
-            }
+            UpdateLeds = false;
+            ws2812fx.show();
         }
+    }
 }
 
-int ButtonNeoPixelSingleClickCallback(){
+int ButtonNeoPixelSingleClickCallback()
+{
 
-    if(RGBEffectStatus){
-        RGBEffectStatus=false;
+    if (RGBEffectStatus)
+    {
+        RGBEffectStatus = false;
         DEBUG_PRINT("RGB Effect off over Button" CLI_NL);
         return 1;
     }
     return 0;
-
 }
 
 #undef DEBUG_MSG
