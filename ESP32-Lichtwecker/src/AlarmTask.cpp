@@ -188,6 +188,10 @@ void AlarmSetLedPower(uint8_t Index, float DC)
 
 void AlarmSetTimeInterval(uint8_t Index, uint32_t Time)
 {
+    if(Time == 0)
+        Time = 15;
+    if(Time > 60)
+        Time = 60;
     Alarms[Index].AlarmDuration = Time;
 }
 
