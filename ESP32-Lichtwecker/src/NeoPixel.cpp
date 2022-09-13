@@ -15,8 +15,6 @@ static void WebUiRGBSliderCallback(Control *Slider, int value);
 static void WebUiRGBEffectSelect(Control *Switcher, int value);
 static int RgbEffectGetIndex(const char *Effect);
 void showStrip();
-void setAll(byte red, byte green, byte blue);
-void setPixel(int Pixel, byte red, byte green, byte blue);
 void WebUiSliderSpeedCallback(Control *Slider, int value);
 
 static int RainbowCircleEffect(void *arg);
@@ -301,12 +299,12 @@ void showStrip()
     // xTaskResumeAll();
 }
 
-void setPixel(int Pixel, byte red, byte green, byte blue)
+void NeoPixelsetPixel(int Pixel, byte red, byte green, byte blue)
 {
     strip.setPixelColor(Pixel, strip.Color(red, green, blue));
 }
 
-void setAll(byte red, byte green, byte blue)
+void NeoPixelsetAll(byte red, byte green, byte blue)
 {
     for (int i = 0; i < CNT; i++)
     {
@@ -343,13 +341,13 @@ int FadeInFadeOut(void *arg)
             switch (j)
             {
             case 0:
-                setAll(k, 0, 0);
+                NeoPixelsetAll(k, 0, 0);
                 break;
             case 1:
-                setAll(0, k, 0);
+                NeoPixelsetAll(0, k, 0);
                 break;
             case 2:
-                setAll(0, 0, k);
+                NeoPixelsetAll(0, 0, k);
                 break;
             }
             showStrip();
@@ -361,13 +359,13 @@ int FadeInFadeOut(void *arg)
             switch (j)
             {
             case 0:
-                setAll(k, 0, 0);
+                NeoPixelsetAll(k, 0, 0);
                 break;
             case 1:
-                setAll(0, k, 0);
+                NeoPixelsetAll(0, k, 0);
                 break;
             case 2:
-                setAll(0, 0, k);
+                NeoPixelsetAll(0, 0, k);
                 break;
             }
             showStrip();
@@ -380,10 +378,10 @@ int FadeInFadeOut(void *arg)
 int Strobe(void *arg)
 {
     return 0;
-    setAll(0xff, 0xff, 0xff);
+    NeoPixelsetAll(0xff, 0xff, 0xff);
     showStrip();
     vTaskDelay(pdMS_TO_TICKS((int)(RGBEffectCurrentDelay * 50)));
-    setAll(0, 0, 0);
+    NeoPixelsetAll(0, 0, 0);
     showStrip();
     vTaskDelay(pdMS_TO_TICKS((int)(RGBEffectCurrentDelay * 50)));
 }
