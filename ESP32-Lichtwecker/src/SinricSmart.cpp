@@ -45,6 +45,13 @@ bool onAdjustBrightness(const String &deviceId, int brightnessDelta) {
   return true;
 }
 
+bool onSetColor(const String &deviceId, byte &R, byte &G, byte &B){
+  DEBUG_PRINT("Device Color set to: R:%d, G:%d, B:%d" CLI_NL,R,G,B);
+  NeoPixelsetAll(R,G,B);
+  NeoPixelSetBrightness(255);
+  return true;
+}
+
 void setupSinricPro() {
   // get a new Light device from SinricPro
   SinricProLight &myLight = SinricPro[LIGHT_ID];
@@ -54,6 +61,7 @@ void setupSinricPro() {
   myLight.onPowerState(onPowerState);
   myLight.onBrightness(onBrightness);
   myLight.onAdjustBrightness(onAdjustBrightness);
+  myLight.onColor(onSetColor);
 
   // setup SinricPro
   SinricPro.onConnected([](){ DEBUG_PRINT("Connected to SinricPro" CLI_NL); }); 
