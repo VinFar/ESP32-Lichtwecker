@@ -2,12 +2,16 @@
 #include "SinricProLight.h"
 #include "Debug.h"
 #include "myLED.h"
+#include "SinricCredentials.h"
+#include "NeoPixel.h"
+
+#if defined(APP_KEY) || defined(APP_SECRET) || defined(LIGHT_ID)
+#else
+#error "You need to define your Sinric Credentials"
+#endif
 
 #define DEBUG_MSG DEBUG_MSG_NEOPIXEL
 
-#define APP_KEY           "3587cd20-08b9-4e96-baa1-72c7588fa45e"      // Should look like "de0bxxxx-1x3x-4x3x-ax2x-5dabxxxxxxxx"
-#define APP_SECRET        "5524df8c-a47b-41f4-9237-7aef42f2aa9d-89df2f43-935e-4f90-90cf-fbce97b6dee9"   // Should look like "5f36xxxx-x3x7-4x3x-xexe-e86724a9xxxx-4c4axxxx-3x3x-x5xe-x9x3-333d65xxxxxx"
-#define LIGHT_ID          "61dc99af7c2a5a7bcddafcf7"    // Should look like "5dc1564130xxxxxxxxxxxxxx"
 
 // we use a struct to store all states and values for our light
 struct {
