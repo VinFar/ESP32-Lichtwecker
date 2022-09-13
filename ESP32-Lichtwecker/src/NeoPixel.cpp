@@ -306,11 +306,10 @@ void NeoPixelsetPixel(int Pixel, byte red, byte green, byte blue)
 
 void NeoPixelsetAll(byte red, byte green, byte blue)
 {
-    for (int i = 0; i < CNT; i++)
-    {
-        setPixel(i, red, green, blue);
-    }
-    showStrip();
+     uint32_t color = ws2812fx.Color(red, green, blue);
+     ws2812fx.fill(color);
+     ws2812fx.setColor(color);
+    UpdateLeds = true;
 }
 
 void NeoPixelSetBrightness(byte brightness){
