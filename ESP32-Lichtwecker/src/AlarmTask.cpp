@@ -239,6 +239,7 @@ static bool AlarmTaskReadAlarmStatusAll()
     bool ret;
 
     prefs.begin(AlarmPrefAlarmStatus);
+    // prefs.putBytes(AlarmPrefAlarmStatus, &ret, sizeof(ret));
     prefs.getBytes(AlarmPrefAlarmStatus, &ret, sizeof(ret));
     DEBUG_PRINT("Alarm General Status %s" CLI_NL, ret ? "on" : "off");
     prefs.end();
