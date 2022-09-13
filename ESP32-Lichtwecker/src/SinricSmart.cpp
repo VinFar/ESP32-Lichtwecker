@@ -26,6 +26,7 @@ bool onPowerState(const String &deviceId, bool &state) {
     LedReadLightOn();
   }else{
     LedReadLightOff();
+    NeoPixelAllOff();
   }
   return true; // request handled properly
 }
