@@ -15,6 +15,7 @@ int ButtonNeoPixelSingleClickCallback();
 void NeoPixelsetAll(byte red, byte green, byte blue);
 void NeoPixelsetPixel(int Pixel, byte red, byte green, byte blue);
 void NeoPixelSetBrightness(byte brightness);
+void NeoPixelAllOff();
 
 
 #endif

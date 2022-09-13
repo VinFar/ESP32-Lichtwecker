@@ -145,6 +145,10 @@ static void WebUiRGBSwitcherCallback(Control *Switcher, int value)
     ClearedEffect = false;
 }
 
+void NeoPixelAllOff(){
+    ClearedEffect=false;
+}
+
 static void WebUiRGBSliderCallback(Control *Slider, int value)
 {
 
