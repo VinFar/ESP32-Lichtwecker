@@ -313,6 +313,11 @@ void NeoPixelsetAll(byte red, byte green, byte blue)
     showStrip();
 }
 
+void NeoPixelSetBrightness(byte brightness){
+    ws2812fx.setBrightness(brightness);
+    UpdateLeds = true;
+}
+
 void TaskNeoPixelStart()
 {
     // xTaskCreatePinnedToCore(TaskNeoPixel, "NeoPixelTask", 4000, NULL, 3, NULL, CONFIG_ARDUINO_RUNNING_CORE);
