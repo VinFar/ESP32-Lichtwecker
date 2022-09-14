@@ -53,18 +53,20 @@ static void WifiConnectedCallback(){
   DEBUG_PRINT("SSID: %s" CLI_NL,WiFi.SSID());
   IPAddress ip = WiFi.localIP();
   DEBUG_PRINT("IP Address: %d.%d.%d.%d" CLI_NL,ip[0],ip[1],ip[2],ip[3]);
+  NeoPixelSetColorForAnimation(0,255,0);
   vTaskDelay(pdMS_TO_TICKS(1000));
   xTaskCreatePinnedToCore(TaskWebUI,"TaskWebUI",4000,NULL,1,NULL,CONFIG_ARDUINO_RUNNING_CORE);
   xTaskCreatePinnedToCore(TaskSNTP,"TaskSNTP",4000,NULL,1,NULL,CONFIG_ARDUINO_RUNNING_CORE);
   setupSinricPro();
-  TaskNeoPixelStart();
   OtaInit();
+  NeoPixelAllOff();
 }
 
 static void WifiDisconnectedCallback(){
   WifiStatus=WL_DISCONNECTED;
   DEBUG_PRINT("Wifi Disconnected\n");
   DEBUG_PRINT("Starting AutoConnect\n");
+  NeoPixelSetColorForAnimation(255,165,0);
   vTaskDelete(TaskSNTPHandleGet());
   WifiManager.autoConnect("","",5,5000);
 }
@@ -74,6 +76,7 @@ static void configModeCallback(AsyncWiFiManager *WifiMan) {
   DEBUG_PRINT("Entered config mode\n");
   DEBUG_PRINT("IP Address: %d.%d.%d.%d" CLI_NL,ip[0],ip[1],ip[2],ip[3]);
   DEBUG_PRINT("SSID %s" CLI_NL,WifiMan->getConfigPortalSSID());
+  NeoPixelSetColorForAnimation(255,0,255);
 }
 
 #undef DEBUG_MSG

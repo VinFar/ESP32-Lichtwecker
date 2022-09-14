@@ -20,15 +20,14 @@ float Test = 1.324f;
 void setup()
 {
   Serial.begin(115200);
+  NeoPixelInit();
   LedWakeInit();
   LedWakeSetDutyCycle(0);
-  LedWakeFanSetDutyCycle(0.0f);
+  LedWakeFanSetDutyCycle(100.0f);
   TempSensorInit();
   ButtonInit();
-  NeoPixelInit();
   AlarmTaskInitPrefs();
   
-
   xTaskCreatePinnedToCore(TaskWifi,"TaskWifi",4000,NULL,1,NULL,CONFIG_ARDUINO_RUNNING_CORE);
 
   // ESPUI.prepareFileSystem();

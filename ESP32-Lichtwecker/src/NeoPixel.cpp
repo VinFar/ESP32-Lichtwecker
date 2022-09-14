@@ -17,11 +17,6 @@ static int RgbEffectGetIndex(const char *Effect);
 void showStrip();
 void WebUiSliderSpeedCallback(Control *Slider, int value);
 
-static int RainbowCircleEffect(void *arg);
-int FadeInFadeOut(void *arg);
-int Strobe(void *arg);
-
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(CNT, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
 WS2812FX ws2812fx = WS2812FX(CNT, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
 
 static const char *WebUiRGBTabName = "RGB Light";
@@ -44,36 +39,25 @@ uint8_t NeoPixelCurrentBrightness;
 int RGBEffectStatus = false;
 static bool ClearedEffect = false;
 static bool UpdateLeds = true;
-int (*CurrentEffectFunction)(void *arg) = RainbowCircleEffect;
-TaskHandle_t TaskNeoPixelTaskHandle;
 float RGBEffectCurrentDelay = 1.0;
-
-typedef struct
-{
-    const char *EffectName;
-    int (*CallBack)(void *arg);
-} RgbEffect_t;
-
-const RgbEffect_t RgbEffects[] = {{"RainbowCircle", RainbowCircleEffect},
-                                  {"FadeIn/FadeOut", FadeInFadeOut},
-                                  {"Strobe", Strobe}};
 
 void NeoPixelInit()
 {
-
-    // strip.begin();
-    // strip.setBrightness(127);
-    // strip.clear();
-    // strip.show();
     DEBUG_PRINT("Init NeoPixels" CLI_NL);
 
     ws2812fx.init();
     ws2812fx.setBrightness(100);
-    ws2812fx.setSpeed(200);
+    ws2812fx.setSpeed(2200);
     ws2812fx.clear();
     ws2812fx.start();
+    NeoPixelSetColorForAnimation(0,0,255);
+    ws2812fx.setMode(FX_MODE_FADE);
+    RGBEffectStatus=true;
 
-    CurrentEffectFunction = RainbowCircleEffect;
+}
+
+void NeoPixelSetColorForAnimation(uint8_t R, uint8_t G, uint8_t B){
+    ws2812fx.setColor(ws2812fx.Color(R,G,B));
 }
 
 void WebUiRGBInit()
@@ -115,13 +99,9 @@ void WebUiRGBCreate()
 
 static void WebUiRGBEffectSelect(Control *Switcher, int value)
 {
-
     int IdxForEffectArray = RgbEffectGetIndex(Switcher->value.c_str());
     ws2812fx.setMode(IdxForEffectArray);
     DEBUG_PRINT("Selected %s. IDX %d" CLI_NL, Switcher->value.c_str(),IdxForEffectArray);
-    //CurrentEffectFunction = RgbEffects[IdxForEffectArray].CallBack;
-    // vTaskDelete(TaskNeoPixelTaskHandle);
-    // TaskNeoPixelStart();
 }
 
 static int RgbEffectGetIndex(const char *Effect)
@@ -146,14 +126,13 @@ static void WebUiRGBSwitcherCallback(Control *Switcher, int value)
 }
 
 void NeoPixelAllOff(){
-    ClearedEffect=false;
+    RGBEffectStatus=false;
 }
 
 static void WebUiRGBSliderCallback(Control *Slider, int value)
 {
 
     float valueFromSlider = Slider->value.toFloat() * 2.55f;
-    // DEBUG_PRINT("Value from Silder: %f" CLI_NL, valueFromSlider);
     int ID = Slider->id;
 
     if (valueFromSlider > 255.0f)
@@ -184,7 +163,6 @@ static void WebUiRGBSliderCallback(Control *Slider, int value)
     {
         NeoPixelCurrentBrightness = (uint8_t)(valueFromSlider);
         DEBUG_PRINT("NeoPixel Brightness set to %d" CLI_NL, WebUiRGBSliderBrightness);
-        // strip.setBrightness(NeoPixelCurrentBrightness);
         ws2812fx.setBrightness(NeoPixelCurrentBrightness);
         UpdateLeds = true;
         return;
@@ -199,11 +177,9 @@ static void WebUiRGBSliderCallback(Control *Slider, int value)
     UpdateLeds = true;
 }
 
-void TaskNeoPixel(void *arg)
+void showStrip()
 {
-    DEBUG_PRINT("Created Task Neo Pixel" CLI_NL);
-    TaskNeoPixelTaskHandle = xTaskGetCurrentTaskHandle();
-    
+    ws2812fx.show();
 }
 
 uint32_t getPixelColorHsv(
@@ -296,18 +272,6 @@ uint32_t getPixelColorHsv(
     return ((uint32_t)r << 16) | ((uint32_t)g << 8) | b;
 }
 
-void showStrip()
-{
-    // vTaskSuspendAll();
-    ws2812fx.show();
-    // xTaskResumeAll();
-}
-
-void NeoPixelsetPixel(int Pixel, byte red, byte green, byte blue)
-{
-    strip.setPixelColor(Pixel, strip.Color(red, green, blue));
-}
-
 void NeoPixelsetAll(byte red, byte green, byte blue)
 {
      uint32_t color = ws2812fx.Color(red, green, blue);
@@ -321,85 +285,11 @@ void NeoPixelSetBrightness(byte brightness){
     UpdateLeds = true;
 }
 
-void TaskNeoPixelStart()
-{
-    // xTaskCreatePinnedToCore(TaskNeoPixel, "NeoPixelTask", 4000, NULL, 3, NULL, CONFIG_ARDUINO_RUNNING_CORE);
-}
-
-static int RainbowCircleEffect(void *arg)
-{
-    return 0;
-    static int position = 0;
-    for (int i = 0; i < CNT; i++)
-        strip.setPixelColor((i + position) % CNT, getPixelColorHsv(i, i * (MAXHUE / CNT), 255, 100));
-    position++;
-    position %= CNT;
-    showStrip();
-    vTaskDelay(pdMS_TO_TICKS((int)(RGBEffectCurrentDelay * 100)));
-}
-
-int FadeInFadeOut(void *arg)
-{
-    return 0;
-    for (int j = 0; j < 3; j++)
-    {
-        // Fade IN
-        for (int k = 0; k < 256; k++)
-        {
-            switch (j)
-            {
-            case 0:
-                NeoPixelsetAll(k, 0, 0);
-                break;
-            case 1:
-                NeoPixelsetAll(0, k, 0);
-                break;
-            case 2:
-                NeoPixelsetAll(0, 0, k);
-                break;
-            }
-            showStrip();
-            vTaskDelay(pdMS_TO_TICKS((int)(RGBEffectCurrentDelay * 5)));
-        }
-        // Fade OUT
-        for (int k = 255; k >= 0; k--)
-        {
-            switch (j)
-            {
-            case 0:
-                NeoPixelsetAll(k, 0, 0);
-                break;
-            case 1:
-                NeoPixelsetAll(0, k, 0);
-                break;
-            case 2:
-                NeoPixelsetAll(0, 0, k);
-                break;
-            }
-            showStrip();
-            vTaskDelay(pdMS_TO_TICKS((int)(RGBEffectCurrentDelay * 5)));
-        }
-    }
-    return 0;
-}
-
-int Strobe(void *arg)
-{
-    return 0;
-    NeoPixelsetAll(0xff, 0xff, 0xff);
-    showStrip();
-    vTaskDelay(pdMS_TO_TICKS((int)(RGBEffectCurrentDelay * 50)));
-    NeoPixelsetAll(0, 0, 0);
-    showStrip();
-    vTaskDelay(pdMS_TO_TICKS((int)(RGBEffectCurrentDelay * 50)));
-}
-
 void NeoPixelTick(){
 
         if (RGBEffectStatus)
         {
             ws2812fx.service();
-            //CurrentEffectFunction(NULL);
         }
         else
         {
