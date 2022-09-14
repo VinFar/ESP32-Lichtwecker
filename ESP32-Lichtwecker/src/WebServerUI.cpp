@@ -36,9 +36,10 @@ void TaskWebUI(void *arg)
 
   WebUiAlarmSwitchUpdateAll();
 
+  vTaskDelete(NULL);
   while (1)
   {
-    vTaskDelay(pdMS_TO_TICKS(50));
+    vTaskDelay(pdMS_TO_TICKS(5000));
   }
 }
 
