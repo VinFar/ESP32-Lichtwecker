@@ -11,6 +11,7 @@
 #include "Button.h"
 #include "NeoPixel.h"
 #include "SinricSmart.h"
+#include "OTA.h"
 
 #define DEBUG_MSG DEBUG_MSG_MAIN
 
@@ -40,6 +41,7 @@ void loop()
   ButtonTick();
   NeoPixelTick();
   SinricHandle();
+  // OtaTick();
 }
 
 #undef DEBUG_MSG
