@@ -81,7 +81,7 @@ static void ButtonSingleClick()
     DEBUG_PRINT("Button Single Click" CLI_NL);
     if (ButtonSingleClickAlarmCallback())
         return;
-    ButtonLedSingleClickCallback();
+    ButtonLedSingleClickCallback();    
     ButtonNeoPixelSingleClickCallback();
     
 }

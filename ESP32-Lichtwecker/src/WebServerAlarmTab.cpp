@@ -4,6 +4,7 @@
 #include "WebServerAlarmTab.h"
 #include "AlarmTask.h"
 #include "myLED.h"
+#include "NeoPixel.h"
 
 #define DEBUG_MSG DEBUG_MSG_WEBUI
 
@@ -81,6 +82,7 @@ static void AlarmOnOffSwitchCallback(Control *Button, int value)
 
     break;
   }
+  NeoPixelBlinkForFeedback(0,255,0);
   AlarmPrefsSaveToNvs();
 }
 
@@ -103,6 +105,7 @@ static void AlarmStatusSwitchCallback(Control *Button, int value)
 
     break;
   }
+  NeoPixelBlinkForFeedback(0,255,0);
   AlarmStatusSaveToNvs();
 }
 
@@ -186,6 +189,7 @@ static void AlarmNumberInputCallback(Control *Select, int type)
   {
     DEBUG_PRINT("Saved Alarm time to NVS" CLI_NL);
     DEBUG_PRINT("Alarm for %s set to %02d:%02d. IDX: %d" CLI_NL, Alarms[idx].WeekDayString, Alarms[idx].Hour, Alarms[idx].Minute, idx);
+    NeoPixelBlinkForFeedback(0,255,0);
     AlarmPrefsSaveToNvs();
   }
   else
@@ -216,6 +220,7 @@ static void AlarmLedTimeIntervallCallback(Control *Select, int type)
     AlarmSetTimeInterval(i, value);
   }
   AlarmPrefsSaveToNvs();
+  NeoPixelBlinkForFeedback(0,255,0);
 }
 
 static void AlarmLedOffTimerNumberCallback(Control *Select,int type){
@@ -223,6 +228,7 @@ static void AlarmLedOffTimerNumberCallback(Control *Select,int type){
   ESPUI.updateNumber(Select->id,ValueFromSlider);
   AlarmSetLedOffTimer(ValueFromSlider);
   AlarmLedOffTimerSaveToNVS();
+  NeoPixelBlinkForFeedback(0,255,0);
 }
 
 static void AlarmLedPowerTimeoutCallback(TimerHandle_t xTimer)
@@ -231,6 +237,7 @@ static void AlarmLedPowerTimeoutCallback(TimerHandle_t xTimer)
   DEBUG_PRINT("LED PWM reset to 0%" CLI_NL);
   xTimerStop(xTimer, portMAX_DELAY);
   AlarmPrefsSaveToNvs();
+  
 }
 
 void AlarmPrefsSaveToNvs()

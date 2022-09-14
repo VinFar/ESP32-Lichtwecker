@@ -5,6 +5,7 @@
 #include <WebServer.h>
 #include <ESPmDNS.h>
 #include <Update.h>
+#include "NeoPixel.h"
 
 #define DEBUG_MSG DEBUG_MSG_OTA
 
@@ -86,9 +87,8 @@ void OtaInit(void) {
   /*use mdns for host name resolution*/
   if (!MDNS.begin("esp32")) { //http://esp32.local
     Serial.println("Error setting up MDNS responder!");
-    while (1) {
-      delay(1000);
-    }
+    NeoPixelShowStatusError();
+    return;
   }
   Serial.println("mDNS responder started");
   /*return index page which is stored in serverIndex */

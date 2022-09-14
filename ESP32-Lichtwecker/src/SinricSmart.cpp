@@ -66,7 +66,7 @@ void setupSinricPro() {
 
   // setup SinricPro
   SinricPro.onConnected([](){ DEBUG_PRINT("Connected to SinricPro" CLI_NL); }); 
-  SinricPro.onDisconnected([](){ DEBUG_PRINT("Disconnected from SinricPro" CLI_NL); });
+  SinricPro.onDisconnected([](){ DEBUG_PRINT("Disconnected from SinricPro" CLI_NL);  NeoPixelShowStatusError();});
   SinricPro.begin(APP_KEY, APP_SECRET);
 
 }
