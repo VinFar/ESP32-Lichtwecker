@@ -20,28 +20,33 @@ float Test = 1.324f;
 void setup()
 {
   Serial.begin(115200);
-  LedWakeInit();
-  LedWakeSetDutyCycle(0);
-  LedWakeFanSetDutyCycle(50.0f);
-  TempSensorInit();
-  ButtonInit();
-  NeoPixelInit();
-  AlarmTaskInitPrefs();
+  DEBUG_PRINT("bsdgfvsdgfso" CLI_NL);
+  // while(1){
+  // Serial.println("Test");
+  // delay(100);
+  // }
+  // LedWakeInit();
+  // LedWakeSetDutyCycle(0);
+  // LedWakeFanSetDutyCycle(50.0f);
+  // TempSensorInit();
+  // ButtonInit();
+  // NeoPixelInit();
+  // AlarmTaskInitPrefs();
   
 
   xTaskCreatePinnedToCore(TaskWifi,"TaskWifi",4000,NULL,1,NULL,CONFIG_ARDUINO_RUNNING_CORE);
 
-  //ESPUI.prepareFileSystem();
+  // ESPUI.prepareFileSystem();
   
 }
 
 void loop()
 {
-  DnsServerProcessNextRequest();
-  ButtonTick();
-  NeoPixelTick();
-  SinricHandle();
-  // OtaTick();
+  // DnsServerProcessNextRequest();
+  // ButtonTick();
+  // NeoPixelTick();
+  // SinricHandle();
+  OtaTick();
 }
 
 #undef DEBUG_MSG

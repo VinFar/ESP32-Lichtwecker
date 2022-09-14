@@ -6,7 +6,9 @@
 #include <ESPmDNS.h>
 #include <Update.h>
 
-WebServer OtaServer(3456);
+#define DEBUG_MSG DEBUG_MSG_OTA
+
+WebServer OtaServer(80);
 
 /* Style */
 String style =
@@ -112,6 +114,7 @@ void OtaInit(void) {
       }
     } else if (upload.status == UPLOAD_FILE_WRITE) {
       /* flashing firmware to ESP*/
+      DEBUG_PRINT("Writing Package. Size: %d" CLI_NL,upload.currentSize);
       if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
         Update.printError(Serial);
       }
