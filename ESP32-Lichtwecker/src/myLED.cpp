@@ -86,7 +86,7 @@ int8_t ButtonLedSingleClickCallback()
 
 int8_t LedReadLightOn()
 {
-    LedWakeSetDutyCycle(1.0f);
+    LedWakeSetDutyCycle(2.0f);
     DEBUG_PRINT("Reading Light on" CLI_NL);
     return 0;
 }
