@@ -11,6 +11,7 @@
 #include "Button.h"
 #include "NeoPixel.h"
 #include "SinricSmart.h"
+#include "OTA.h"
 
 #define DEBUG_MSG DEBUG_MSG_MAIN
 
@@ -21,7 +22,7 @@ void setup()
   Serial.begin(115200);
   LedWakeInit();
   LedWakeSetDutyCycle(0);
-  LedWakeFanSetDutyCycle(50.0f);
+  LedWakeFanSetDutyCycle(0.0f);
   TempSensorInit();
   ButtonInit();
   NeoPixelInit();
@@ -30,7 +31,7 @@ void setup()
 
   xTaskCreatePinnedToCore(TaskWifi,"TaskWifi",4000,NULL,1,NULL,CONFIG_ARDUINO_RUNNING_CORE);
 
-  //ESPUI.prepareFileSystem();
+  // ESPUI.prepareFileSystem();
   
 }
 
@@ -40,6 +41,7 @@ void loop()
   ButtonTick();
   NeoPixelTick();
   SinricHandle();
+  OtaTick();
 }
 
 #undef DEBUG_MSG

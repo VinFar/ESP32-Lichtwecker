@@ -209,7 +209,7 @@ int AlarmLedOffTimerGet()
 void AlarmLedOffTimerSaveToNVS()
 {
     prefs.begin(AlarmPrefsLedPowerOffTimer);
-    prefs.putInt(AlarmPrefsLedPowerOffTimer, AlarmLedOffTimerValue);
+    // prefs.putInt(AlarmPrefsLedPowerOffTimer, AlarmLedOffTimerValue);
     prefs.end();
 
     DEBUG_PRINT("LED Power Off Timer saved to NVs" CLI_NL);
@@ -219,7 +219,7 @@ static void AlarmTaskReadStruct(Alarm_t *AlarmPtr, size_t size)
 {
 
     prefs.begin(AlarmPrefsNameSpace);
-    // prefs.putBytes(AlarmPrefsNameSpace, &Alarms, size;
+    // prefs.putBytes(AlarmPrefsNameSpace, &Alarms, size);
     prefs.getBytes(AlarmPrefsNameSpace, AlarmPtr, size);
     DEBUG_PRINT("Alarm %s %s" CLI_NL, AlarmPtr[0].WeekDayString, AlarmPtr[0].AlarmOnOff ? "on" : "off");
     DEBUG_PRINT("Alarm Rising Time %d min" CLI_NL, AlarmPtr[0].AlarmDuration);
