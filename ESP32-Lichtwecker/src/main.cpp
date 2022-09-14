@@ -20,11 +20,6 @@ float Test = 1.324f;
 void setup()
 {
   Serial.begin(115200);
-  DEBUG_PRINT("bsdgfvsdgfso" CLI_NL);
-  // while(1){
-  // Serial.println("Test");
-  // delay(100);
-  // }
   // LedWakeInit();
   // LedWakeSetDutyCycle(0);
   // LedWakeFanSetDutyCycle(50.0f);
