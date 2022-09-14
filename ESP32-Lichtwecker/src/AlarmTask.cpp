@@ -4,6 +4,7 @@
 #include "Debug.h"
 #include "myRTC.h"
 #include "myLED.h"
+#include "NeoPixel.h"
 
 #define DEBUG_MSG DEBUG_MSG_ALARMS
 
@@ -169,11 +170,13 @@ int8_t AlarmStatusSaveToNvs()
     if (!prefs.begin(AlarmPrefAlarmStatus, false))
     {
         DEBUG_PRINT("Could not open NameSpace" CLI_NL);
+        NeoPixelShowStatusError();
         return -1;
     }
     if (!prefs.putBytes(AlarmPrefAlarmStatus, &AlarmStatusAll, sizeof(AlarmStatusAll)))
     {
         DEBUG_PRINT("Could not write Namespace %s" CLI_NL, AlarmStatusAll);
+        NeoPixelShowStatusError();
         return -1;
     }
     prefs.end();
@@ -211,6 +214,7 @@ void AlarmLedOffTimerSaveToNVS()
     prefs.begin(AlarmPrefsLedPowerOffTimer);
     // prefs.putInt(AlarmPrefsLedPowerOffTimer, AlarmLedOffTimerValue);
     prefs.end();
+    NeoPixelBlinkForFeedback(0,255,0);
 
     DEBUG_PRINT("LED Power Off Timer saved to NVs" CLI_NL);
 }
@@ -220,7 +224,9 @@ static void AlarmTaskReadStruct(Alarm_t *AlarmPtr, size_t size)
 
     prefs.begin(AlarmPrefsNameSpace);
     // prefs.putBytes(AlarmPrefsNameSpace, &Alarms, size);
-    prefs.getBytes(AlarmPrefsNameSpace, AlarmPtr, size);
+    if(!prefs.getBytes(AlarmPrefsNameSpace, AlarmPtr, size)){
+        NeoPixelShowStatusError();
+    }
     DEBUG_PRINT("Alarm %s %s" CLI_NL, AlarmPtr[0].WeekDayString, AlarmPtr[0].AlarmOnOff ? "on" : "off");
     DEBUG_PRINT("Alarm Rising Time %d min" CLI_NL, AlarmPtr[0].AlarmDuration);
     prefs.end();
@@ -244,7 +250,9 @@ static bool AlarmTaskReadAlarmStatusAll()
 
     prefs.begin(AlarmPrefAlarmStatus);
     // prefs.putBytes(AlarmPrefAlarmStatus, &ret, sizeof(ret));
-    prefs.getBytes(AlarmPrefAlarmStatus, &ret, sizeof(ret));
+    if(!prefs.getBytes(AlarmPrefAlarmStatus, &ret, sizeof(ret))){
+        NeoPixelShowStatusError();
+    }
     DEBUG_PRINT("Alarm General Status %s" CLI_NL, ret ? "on" : "off");
     prefs.end();
     return ret;

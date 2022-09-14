@@ -16,6 +16,7 @@ static void WebUiRGBEffectSelect(Control *Switcher, int value);
 static int RgbEffectGetIndex(const char *Effect);
 void showStrip();
 void WebUiSliderSpeedCallback(Control *Slider, int value);
+void NeoPixelCallbackFromTimer(TimerHandle_t xTimer);
 
 WS2812FX ws2812fx = WS2812FX(CNT, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
 
@@ -37,7 +38,7 @@ uint8_t NeoPixelCurrentBlue;
 uint8_t NeoPixelCurrentBrightness;
 
 int RGBEffectStatus = false;
-static bool ClearedEffect = false;
+static bool ClearedEffect = true;
 static bool UpdateLeds = true;
 float RGBEffectCurrentDelay = 1.0;
 
@@ -50,14 +51,33 @@ void NeoPixelInit()
     ws2812fx.setSpeed(2200);
     ws2812fx.clear();
     ws2812fx.start();
-    NeoPixelSetColorForAnimation(0,0,255);
-    ws2812fx.setMode(FX_MODE_FADE);
+    NeoPixelShowStatusBooting();
     RGBEffectStatus=true;
 
 }
 
 void NeoPixelSetColorForAnimation(uint8_t R, uint8_t G, uint8_t B){
+    if(!RGBEffectStatus)
+        ws2812fx.setMode(FX_MODE_FADE);
     ws2812fx.setColor(ws2812fx.Color(R,G,B));
+}
+
+void NeoPixelShowStatusError(){
+    NeoPixelSetColorForAnimation(255,0,0);
+}
+
+void NeoPixelShowStatusBooting(){
+    NeoPixelSetColorForAnimation(0,0,255);
+}
+
+void NeoPixelShowStatusWifiConfig(){
+    NeoPixelSetColorForAnimation(255,165,0);
+}
+
+void NeoPixelShowStatusBootOk(){
+    NeoPixelSetColorForAnimation(0,255,0);
+    TimerHandle_t Timer =  xTimerCreate("",pdMS_TO_TICKS(7000),pdFALSE,(void*)0,NeoPixelCallbackFromTimer);
+    xTimerStart(Timer,pdMS_TO_TICKS(100));
 }
 
 void WebUiRGBInit()
@@ -127,7 +147,19 @@ static void WebUiRGBSwitcherCallback(Control *Switcher, int value)
 
 void NeoPixelAllOff(){
     RGBEffectStatus=false;
+    ClearedEffect=false;
 }
+
+void NeoPixelBlinkForFeedback(uint8_t R, uint8_t G, uint8_t B){
+    NeoPixelsetAll(R,G,B);
+    TimerHandle_t Timer =  xTimerCreate("",pdMS_TO_TICKS(100),pdFALSE,(void*)0,NeoPixelCallbackFromTimer);
+    xTimerStart(Timer,pdMS_TO_TICKS(100));
+}
+
+void NeoPixelCallbackFromTimer(TimerHandle_t xTimer){
+    NeoPixelAllOff();
+}
+
 
 static void WebUiRGBSliderCallback(Control *Slider, int value)
 {
@@ -276,8 +308,8 @@ void NeoPixelsetAll(byte red, byte green, byte blue)
 {
      uint32_t color = ws2812fx.Color(red, green, blue);
      ws2812fx.fill(color);
-     ws2812fx.setColor(color);
-    UpdateLeds = true;
+     //ws2812fx.setColor(color);
+     ws2812fx.show();
 }
 
 void NeoPixelSetBrightness(byte brightness){

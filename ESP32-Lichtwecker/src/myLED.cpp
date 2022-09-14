@@ -74,24 +74,28 @@ int8_t ButtonLedSingleClickCallback()
     if (LedPwmGet() == 0.0f)
     {
         LedReadLightOn();
+        return true;
     }
     else
     {
         LedReadLightOff();
+        return false;
     }
     return 1;
 }
 
 int8_t LedReadLightOn()
 {
-    LedWakeSetDutyCycle(2.0f);
+    LedWakeSetDutyCycle(1.0f);
     DEBUG_PRINT("Reading Light on" CLI_NL);
+    return 0;
 }
 
 int8_t LedReadLightOff()
 {
     LedWakeSetDutyCycle(0.0f);
     DEBUG_PRINT("Reading Light off" CLI_NL);
+    return 0;
 }
 
 #undef DEBUG_MSG
