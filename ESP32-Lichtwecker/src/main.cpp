@@ -20,13 +20,13 @@ float Test = 1.324f;
 void setup()
 {
   Serial.begin(115200);
-  // LedWakeInit();
-  // LedWakeSetDutyCycle(0);
-  // LedWakeFanSetDutyCycle(50.0f);
-  // TempSensorInit();
-  // ButtonInit();
-  // NeoPixelInit();
-  // AlarmTaskInitPrefs();
+  LedWakeInit();
+  LedWakeSetDutyCycle(0);
+  LedWakeFanSetDutyCycle(0.0f);
+  TempSensorInit();
+  ButtonInit();
+  NeoPixelInit();
+  AlarmTaskInitPrefs();
   
 
   xTaskCreatePinnedToCore(TaskWifi,"TaskWifi",4000,NULL,1,NULL,CONFIG_ARDUINO_RUNNING_CORE);
@@ -37,10 +37,10 @@ void setup()
 
 void loop()
 {
-  // DnsServerProcessNextRequest();
-  // ButtonTick();
-  // NeoPixelTick();
-  // SinricHandle();
+  DnsServerProcessNextRequest();
+  ButtonTick();
+  NeoPixelTick();
+  SinricHandle();
   OtaTick();
 }
 

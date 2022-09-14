@@ -54,10 +54,10 @@ static void WifiConnectedCallback(){
   IPAddress ip = WiFi.localIP();
   DEBUG_PRINT("IP Address: %d.%d.%d.%d" CLI_NL,ip[0],ip[1],ip[2],ip[3]);
   vTaskDelay(pdMS_TO_TICKS(1000));
-  // xTaskCreatePinnedToCore(TaskWebUI,"TaskWebUI",4000,NULL,1,NULL,CONFIG_ARDUINO_RUNNING_CORE);
-  // xTaskCreatePinnedToCore(TaskSNTP,"TaskSNTP",4000,NULL,1,NULL,CONFIG_ARDUINO_RUNNING_CORE);
-  // setupSinricPro();
-  // TaskNeoPixelStart();
+  xTaskCreatePinnedToCore(TaskWebUI,"TaskWebUI",4000,NULL,1,NULL,CONFIG_ARDUINO_RUNNING_CORE);
+  xTaskCreatePinnedToCore(TaskSNTP,"TaskSNTP",4000,NULL,1,NULL,CONFIG_ARDUINO_RUNNING_CORE);
+  setupSinricPro();
+  TaskNeoPixelStart();
   OtaInit();
 }
 
