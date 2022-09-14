@@ -2,6 +2,7 @@
 #include "Debug.h"
 #include "WebServerStatusTab.h"
 #include "WebServerUI.h"
+#include "SinricSmart.h"
 
 #define DEBUG_MSG DEBUG_MSG_LED
 
@@ -33,8 +34,8 @@ void LedWakeSetDutyCycle(float DutyCycle)
     if (DutyCycle > MaxPwmFromTemp)
         DutyCycle = MaxPwmFromTemp;
 
-    CurrentDutyCycleOfLedMatched = DutyCycle;
     WebUiLedPwmUpdateLabel(DutyCycle);
+    CurrentDutyCycleOfLedMatched = DutyCycle;
     DEBUG_PRINT("DutyCycles for PWM Driver %f" CLI_NL, DutyCycle);
     DutyCycle = 100.0f - DutyCycle;
     int DutyCycleValue = (int)((((float)(1 << LED_WAKE_RESOLUTION)) * DutyCycle) / 100.0f);

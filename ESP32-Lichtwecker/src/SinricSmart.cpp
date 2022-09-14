@@ -12,8 +12,8 @@
 
 #define DEBUG_MSG DEBUG_MSG_NEOPIXEL
 
+SinricProLight &myLight = SinricPro[LIGHT_ID];
 
-// we use a struct to store all states and values for our light
 struct {
   bool powerState = false;
   int brightness = 0;
@@ -53,9 +53,13 @@ bool onSetColor(const String &deviceId, byte &R, byte &G, byte &B){
   return true;
 }
 
+void SinricSendCurrentBrightness(int Brightness){
+  myLight.sendBrightnessEvent(Brightness);
+}
+
 void setupSinricPro() {
   // get a new Light device from SinricPro
-  SinricProLight &myLight = SinricPro[LIGHT_ID];
+  
 
   
   // set callback function to device
