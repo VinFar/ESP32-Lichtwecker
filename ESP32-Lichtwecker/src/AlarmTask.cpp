@@ -83,7 +83,13 @@ static void TaskAlarmTriggered(void *arg)
     float CurrentPwm = 1.0f;
     float MaximumPwm = Alarms[IndexOfAlarmStruct].AlarmMaxLight;
     uint32_t EndTicks = xTaskGetTickCount() + pdMS_TO_TICKS(Alarms[IndexOfAlarmStruct].AlarmDuration * 60 * 1000);
-    float PwmToIncreasePerStep = MaximumPwm / (Alarms[IndexOfAlarmStruct].AlarmDuration * 60);
+    float PwmToIncreasePerStep;
+    if(Alarms[IndexOfAlarmStruct].AlarmDuration==0.0f){
+        PwmToIncreasePerStep=100.0f;
+        CurrentPwm=100.0f;
+    }else{
+        PwmToIncreasePerStep = MaximumPwm / (Alarms[IndexOfAlarmStruct].AlarmDuration * 60);
+    }
 
     DEBUG_PRINT("Task started for triggering alarm. Index: %d | Max Power: %d | DC/s: %.4f P/s" CLI_NL, IndexOfAlarmStruct, MaximumPwm, PwmToIncreasePerStep);
     TaskAlarmTriggeredTaskHandle = xTaskGetCurrentTaskHandle();
@@ -191,8 +197,6 @@ void AlarmSetLedPower(uint8_t Index, float DC)
 
 void AlarmSetTimeInterval(uint8_t Index, uint32_t Time)
 {
-    if(Time == 0)
-        Time = 15;
     if(Time > 60)
         Time = 60;
     Alarms[Index].AlarmDuration = Time;
