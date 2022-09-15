@@ -309,7 +309,7 @@ void NeoPixelsetAll(byte red, byte green, byte blue)
      uint32_t color = ws2812fx.Color(red, green, blue);
      ws2812fx.fill(color);
      //ws2812fx.setColor(color);
-     ws2812fx.show();
+     UpdateLeds=true;
 }
 
 void NeoPixelSetBrightness(byte brightness){
@@ -346,6 +346,7 @@ int ButtonNeoPixelSingleClickCallback(){
         DEBUG_PRINT("RGB Effect off over Button" CLI_NL);
         return 1;
     }
+    ClearedEffect=false;
     return 0;
 
 }

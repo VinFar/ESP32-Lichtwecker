@@ -49,7 +49,6 @@ bool onAdjustBrightness(const String &deviceId, int brightnessDelta) {
 bool onSetColor(const String &deviceId, byte &R, byte &G, byte &B){
   DEBUG_PRINT("Device Color set to: R:%d, G:%d, B:%d" CLI_NL,R,G,B);
   NeoPixelsetAll(R,G,B);
-  NeoPixelSetBrightness(255);
   return true;
 }
 
