@@ -61,7 +61,7 @@ void TaskAlarm(void *arg)
                     DEBUG_PRINT("Alarm triggered but another alarms is already running" CLI_NL);
                 }
             }
-            vTaskDelay(pdMS_TO_TICKS(59000));
+            vTaskDelay(pdMS_TO_TICKS(30000));
         }
         else
         {
@@ -97,7 +97,7 @@ static void TaskAlarmTriggered(void *arg)
     {
         LedWakeSetDutyCycle(CurrentPwm);
         CurrentPwm += PwmToIncreasePerStep;
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        vTaskDelay(pdMS_TO_TICKS(100));
         if (xTaskGetTickCount() > EndTicks)
         {
             break;
