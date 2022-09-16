@@ -15,6 +15,8 @@ static bool AlarmTaskStarted;
 
 void TaskSNTP(void *arg)
 {
+    struct tm CurrentRtcTimeTmp;
+
     TaskSNTPHandle = xTaskGetCurrentTaskHandle();
     AlarmTaskStarted = false;
 
@@ -23,20 +25,22 @@ void TaskSNTP(void *arg)
     configTzTime(TZ_INFO, "europe.pool.ntp.org");
     while (1)
     {
-        if (!getLocalTime(&CurrentRtcTime))
+        if (!getLocalTime(&CurrentRtcTimeTmp))
         {
             DEBUG_PRINT("Failed to obtain time. Retrying..." CLI_NL);
             vTaskDelay(pdMS_TO_TICKS(1000));
         }
         else
         {
+            CurrentRtcTime = CurrentRtcTimeTmp;
+            memcpy(&CurrentRtcTime,&CurrentRtcTimeTmp,sizeof(CurrentRtcTimeTmp));
             if (AlarmTaskStarted == false)
             {
                 AlarmTaskStarted = true;
                 xTaskCreatePinnedToCore(TaskAlarm, "TaskAlarm", 4000, NULL, 1, NULL, CONFIG_ARDUINO_UDP_RUNNING_CORE);
             }
             printLocalTime(CurrentRtcTime);
-            vTaskDelay(pdMS_TO_TICKS(60000));
+            vTaskDelay(pdMS_TO_TICKS(30000));
         }
     }
 }
