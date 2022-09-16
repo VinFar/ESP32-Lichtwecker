@@ -37,7 +37,7 @@ void TaskSNTP(void *arg)
             if (AlarmTaskStarted == false)
             {
                 AlarmTaskStarted = true;
-                xTaskCreatePinnedToCore(TaskAlarm, "TaskAlarm", 4000, NULL, 1, NULL, CONFIG_ARDUINO_UDP_RUNNING_CORE);
+                xTaskCreatePinnedToCore(TaskAlarm, "TaskAlarm", 8000, NULL, 1, NULL, CONFIG_ARDUINO_UDP_RUNNING_CORE);
             }
             printLocalTime(CurrentRtcTime);
             vTaskDelay(pdMS_TO_TICKS(30000));

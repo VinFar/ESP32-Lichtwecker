@@ -28,7 +28,7 @@ void setup()
   ButtonInit();
   AlarmTaskInitPrefs();
   
-  xTaskCreatePinnedToCore(TaskWifi,"TaskWifi",4000,NULL,1,NULL,CONFIG_ARDUINO_RUNNING_CORE);
+  xTaskCreatePinnedToCore(TaskWifi,"TaskWifi",8000,NULL,1,NULL,CONFIG_ARDUINO_RUNNING_CORE);
 
   // ESPUI.prepareFileSystem();
 }
