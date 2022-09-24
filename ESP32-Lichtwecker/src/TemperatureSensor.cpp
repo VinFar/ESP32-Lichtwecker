@@ -50,11 +50,13 @@ int TempSensorStatus(){
 }
 
 static void TempSensorNotOkCallback(){
+    DEBUG_PRINT("Error on Temperature Sensor" CLI_NL);
     NeoPixelShowStatusError();
     TempSensorOk=false;
 }
 
 static void TempSensorOkCallback(){
+    DEBUG_PRINT("Temperature Sensor OK" CLI_NL);
     TempSensorOk=true;
 }
 
@@ -78,6 +80,7 @@ void TaskTemperature(void *arg)
             if(TempSensorStatus()){
             TempSensorNotOkCallback();
             }
+        DEBUG_PRINT("Temp: %3.2f°C" CLI_NL,CurrentTemp);
         }
         
         TemperatureString = String(CurrentTemp, 2);
