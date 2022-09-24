@@ -64,11 +64,9 @@ void TaskTemperature(void *arg)
 {
 
     DEBUG_PRINT("Created Temperature Task" CLI_NL);
-
+    TemperatureSensor.requestTemperatures();
     while (1)
     {
-        TemperatureSensor.requestTemperatures();
-
         // wait for data AND detect disconnect
         while (!TemperatureSensor.isConversionComplete())
         {
