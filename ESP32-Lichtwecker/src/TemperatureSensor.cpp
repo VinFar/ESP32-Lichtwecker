@@ -94,6 +94,7 @@ void TaskTemperature(void *arg)
         float FanPwm = TemperatureCalcFanPower(CurrentTemp);
         LedWakeFanSetDutyCycle(FanPwm);
         LedPwmMaxSet(MaxPwm);
+        TemperatureSensor.requestTemperatures();
         vTaskDelay(pdMS_TO_TICKS(900));
     }
 }
