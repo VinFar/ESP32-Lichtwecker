@@ -80,7 +80,11 @@ void TaskTemperature(void *arg)
             if(TempSensorStatus()){
             TempSensorNotOkCallback();
             }
+        }else{
         DEBUG_PRINT("Temp: %3.2f°C" CLI_NL,CurrentTemp);
+            if(!TempSensorStatus()){
+            TempSensorOkCallback();
+            }
         }
         
         TemperatureString = String(CurrentTemp, 2);
