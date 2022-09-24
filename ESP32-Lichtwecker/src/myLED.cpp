@@ -31,8 +31,10 @@ void LedWakeSetDutyCycle(float DutyCycle)
     if (DutyCycle != 0.0f)
         DutyCycle = DutyCycle * 0.90f + 10;
 
-    if (DutyCycle > MaxPwmFromTemp)
+    if (DutyCycle > MaxPwmFromTemp){
         DutyCycle = MaxPwmFromTemp;
+        DEBUG_PRINT("Reduced max PWM of LED to: %3.2f due to too high temperature!" CLI_NL,DutyCycle);
+    }
 
     WebUiLedPwmUpdateLabel(DutyCycle);
     CurrentDutyCycleOfLedMatched = DutyCycle;

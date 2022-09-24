@@ -12,6 +12,8 @@
 
 #define DEBUG_MSG DEBUG_MSG_NEOPIXEL
 
+#if GOOGLE_HOME_ENABLED
+
 SinricProLight &myLight = SinricPro[LIGHT_ID];
 
 struct {
@@ -77,5 +79,6 @@ void setupSinricPro() {
 void SinricHandle(){
     SinricPro.handle();
 }
+  #endif
 
 #undef DEBUG_MSG
