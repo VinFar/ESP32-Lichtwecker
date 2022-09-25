@@ -19,7 +19,7 @@ float Test = 1.324f;
 
 void setup()
 {
-  Serial.begin(115200);
+  Serial.begin(1000000);
   NeoPixelInit();
   LedWakeInit();
   LedWakeSetDutyCycle(0);
@@ -35,10 +35,10 @@ void setup()
 
 void loop()
 {
-  DnsServerProcessNextRequest();
+  
   ButtonTick();
   NeoPixelTick();
-  SinricHandle();
+  // SinricHandle();
   OtaTick();
 }
 

@@ -27,8 +27,7 @@ void TaskWebUI(void *arg)
   DEBUG_PRINT("DNS Status %s" CLI_NL, Status ? "OK" : "Fail");
   WebUiInitTabs();
 
-  ESPUI.sliderContinuous = true;
-  ESPUI.begin("Lichtwäcker v1.0");
+  ESPUI.begin("Lichtwäcker v1.1.0.0");
   // ESPUI.beginLITTLEFS("Lichtwecker");
   // ESPUI.beginSPIFFS("Lichtwecker");
   DEBUG_PRINT("Started WebUI" CLI_NL);
@@ -36,10 +35,11 @@ void TaskWebUI(void *arg)
 
   WebUiAlarmSwitchUpdateAll();
 
-  // vTaskDelete(NULL);
+  //vTaskDelete(NULL);
   while (1)
   {
-    vTaskDelay(pdMS_TO_TICKS(50));
+    DnsServerProcessNextRequest();
+    //vTaskDelay(pdMS_TO_TICKS(50));
   }
 }
 

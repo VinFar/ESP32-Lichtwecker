@@ -50,11 +50,13 @@ int TempSensorStatus(){
 }
 
 static void TempSensorNotOkCallback(){
+    DEBUG_PRINT("Error on Temperature Sensor" CLI_NL);
     NeoPixelShowStatusError();
     TempSensorOk=false;
 }
 
 static void TempSensorOkCallback(){
+    DEBUG_PRINT("Temperature Sensor OK" CLI_NL);
     TempSensorOk=true;
 }
 
@@ -62,11 +64,9 @@ void TaskTemperature(void *arg)
 {
 
     DEBUG_PRINT("Created Temperature Task" CLI_NL);
-
+    TemperatureSensor.requestTemperatures();
     while (1)
     {
-        TemperatureSensor.requestTemperatures();
-
         // wait for data AND detect disconnect
         while (!TemperatureSensor.isConversionComplete())
         {
@@ -77,6 +77,11 @@ void TaskTemperature(void *arg)
         if(CurrentTemp == DEVICE_DISCONNECTED_C){
             if(TempSensorStatus()){
             TempSensorNotOkCallback();
+            }
+        }else{
+        DEBUG_PRINT("Temp: %3.2f°C" CLI_NL,CurrentTemp);
+            if(!TempSensorStatus()){
+            TempSensorOkCallback();
             }
         }
         
@@ -89,6 +94,7 @@ void TaskTemperature(void *arg)
         float FanPwm = TemperatureCalcFanPower(CurrentTemp);
         LedWakeFanSetDutyCycle(FanPwm);
         LedPwmMaxSet(MaxPwm);
+        TemperatureSensor.requestTemperatures();
         vTaskDelay(pdMS_TO_TICKS(900));
     }
 }
