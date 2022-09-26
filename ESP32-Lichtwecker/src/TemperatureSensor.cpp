@@ -45,7 +45,7 @@ void TempSensorInit()
         DEBUG_PRINT("Found Temperature sensor" CLI_NL);
         TempSensorOkCallback();
     }
-    xTaskCreatePinnedToCore(TaskTemperature, "TaskTemperature", 4000, NULL, 2, NULL, CONFIG_ARDUINO_RUNNING_CORE);
+    // xTaskCreatePinnedToCore(TaskTemperature, "TaskTemperature", 4000, NULL, 2, NULL, CONFIG_ARDUINO_RUNNING_CORE);
 }
 
 int TempSensorStatus(){
