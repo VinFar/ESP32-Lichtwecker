@@ -47,7 +47,7 @@ void DebugPrintFunction(DebugPrefix_t DebugPrefix,
 #define DEBUG_MSG_OTA (DebugPrefixes[10])
 #define DEBUG_MSG_CLI (DebugPrefixes[11])
 
-extern DebugPrefix_t DebugPrefixes[11];
+extern DebugPrefix_t DebugPrefixes[12];
 
 
 #endif
