@@ -16,11 +16,14 @@
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature TemperatureSensor(&oneWire);
 DeviceAddress LedTempAddress;
+TimerHandle_t TempSensorWatchDogTimer=NULL;
+
 void TaskTemperature(void *arg);
 static float TemperatureCalcMaxPWM(float Temp);
 static float TemperatureCalcFanPower(float Temp);
 static void TempSensorOkCallback();
 static void TempSensorNotOkCallback();
+void TempSensorWatchDogExpiredCallback(TimerHandle_t TimerID);
 
 float CurrentTemp;
 String TemperatureString = "-20.0";
@@ -28,34 +31,49 @@ int TempSensorOk=false;
 
 void TempSensorInit()
 {
-
     vTaskDelay(pdMS_TO_TICKS(1000));
     oneWire.reset();
     vTaskDelay(pdMS_TO_TICKS(1000));
     TemperatureSensor.begin();
     TemperatureSensor.setWaitForConversion(false);
+    TemperatureSensor.setResolution(9);
 
     if (!TemperatureSensor.getAddress(LedTempAddress, 0))
     {
         DEBUG_PRINT("Unable to find address for Device 0");
-        TempSensorNotOkCallback();
+        TempSensorOk=false;
     }
     else
     {
         DEBUG_PRINT("Found Temperature sensor" CLI_NL);
-        TempSensorOkCallback();
+        TempSensorOk=true;
     }
-    // xTaskCreatePinnedToCore(TaskTemperature, "TaskTemperature", 4000, NULL, 2, NULL, CONFIG_ARDUINO_RUNNING_CORE);
+
+    TempSensorWatchDogTimer = xTimerCreate("TempSensorWatchdog",pdMS_TO_TICKS(5000),pdTRUE,(void*)0,TempSensorWatchDogExpiredCallback);
+    if(TempSensorWatchDogTimer != NULL){
+        xTimerStart(TempSensorWatchDogTimer,pdMS_TO_TICKS(100));
+    }else{
+        DEBUG_PRINT("Could not create TempSensorWatchdog Timer" CLI_NL);
+        TempSensorOk=false;
+    }
 }
 
 int TempSensorStatus(){
     return TempSensorOk;
 }
 
+void TempSensorWatchDogExpiredCallback(TimerHandle_t TimerID){
+    DEBUG_PRINT("Watchdog of TempSensor expired" CLI_NL);
+    TempSensorNotOkCallback();
+}
+
 static void TempSensorNotOkCallback(){
     DEBUG_PRINT("Error on Temperature Sensor" CLI_NL);
+    LedWakeSetDutyCycle(0.0f);
     NeoPixelShowStatusError();
     TempSensorOk=false;
+    oneWire.reset();
+    TemperatureSensor.begin();
 }
 
 static void TempSensorOkCallback(){
@@ -84,47 +102,17 @@ void TempSensorTick()
             float FanPwm = TemperatureCalcFanPower(CurrentTemp);
             LedWakeFanSetDutyCycle(FanPwm);
             LedPwmMaxSet(MaxPwm);
+            if(TempSensorWatchDogTimer != NULL){
+                xTimerReset(TempSensorWatchDogTimer,pdMS_TO_TICKS(100));
+            }
         }else{
+            DEBUG_PRINT("Could not read Temp Sensor. Resetting oneWire." CLI_NL);
             oneWire.reset();
         }
         TemperatureSensor.requestTemperatures();
     }
 }
 
-void TaskTemperature(void *arg)
-{
-
-    DEBUG_PRINT("Created Temperature Task" CLI_NL);
-
-    while (1)
-    {
-        TemperatureSensor.requestTemperatures();
-
-        CurrentTemp = TemperatureSensor.getTempC(LedTempAddress);
-        if (CurrentTemp == DEVICE_DISCONNECTED_C)
-        {
-            if (TempSensorStatus())
-            {
-                TempSensorNotOkCallback();
-            }
-        }
-        else
-        {
-            DEBUG_PRINT("Temp: %3.6f°C" CLI_NL, CurrentTemp);
-        }
-
-        TemperatureString = String(CurrentTemp, 2);
-        if (WebUiIsStarted())
-        {
-            ESPUI.print(WebUiGetTemperatureLabelId(), TemperatureString);
-        }
-        float MaxPwm = TemperatureCalcMaxPWM(CurrentTemp);
-        float FanPwm = TemperatureCalcFanPower(CurrentTemp);
-        LedWakeFanSetDutyCycle(FanPwm);
-        LedPwmMaxSet(MaxPwm);
-        vTaskDelay(pdMS_TO_TICKS(900));
-    }
-}
 
 /*
  * This function calculates the maximum pwm for the LED for a given temp

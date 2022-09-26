@@ -6,5 +6,6 @@
 
 void TempSensorInit();
 void TempSensorTick();
+int TempSensorStatus();
 
 #endif
