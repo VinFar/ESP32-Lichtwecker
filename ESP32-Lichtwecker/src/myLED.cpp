@@ -44,7 +44,7 @@ void LedWakeSetDutyCycle(float DutyCycle)
 
     WebUiLedPwmUpdateLabel(DutyCycle);
     CurrentDutyCycleOfLedMatched = DutyCycle;
-    DEBUG_PRINT("DutyCycles for PWM Driver %f" CLI_NL, DutyCycle);
+    DEBUG_PRINT("DutyCycles for PWM Driver %3.2f" CLI_NL, DutyCycle);
     DutyCycle = 100.0f - DutyCycle;
     int DutyCycleValue = (int)((((float)(1 << LED_WAKE_RESOLUTION)) * DutyCycle) / 100.0f);
     ledcWrite(LED_WAKE_CHANNEL, DutyCycleValue);
