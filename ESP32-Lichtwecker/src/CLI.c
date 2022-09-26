@@ -3,6 +3,8 @@
 #include "SimpleCLI.h"
 #include "Husarnet.h"
 
+#undef DEBUG_MSG
+#define DEBUG_MSG DEBUG_MSG_HUSARNET
 
 void TaskCli(void *arg);
 
