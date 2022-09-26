@@ -8,8 +8,7 @@
 #define CNT 24
 #define MAXHUE 256 * 6
 
-uint32_t getPixelColorHsv(
-    uint16_t n, uint16_t h, uint8_t s, uint8_t v);
+uint32_t getPixelColorHsv(uint16_t h, uint8_t s, uint8_t v);
 static void WebUiRGBSwitcherCallback(Control *Switcher, int value);
 static void WebUiRGBSliderCallback(Control *Slider, int value);
 static void WebUiRGBEffectSelect(Control *Switcher, int value);
@@ -214,8 +213,7 @@ void showStrip()
     ws2812fx.show();
 }
 
-uint32_t getPixelColorHsv(
-    uint16_t n, uint16_t h, uint8_t s, uint8_t v)
+uint32_t getPixelColorHsv(uint16_t h, uint8_t s, uint8_t v)
 {
 
     uint8_t r, g, b;
