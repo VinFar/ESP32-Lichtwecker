@@ -95,27 +95,24 @@ void TaskTemperature(void *arg)
 {
 
     DEBUG_PRINT("Created Temperature Task" CLI_NL);
-    TemperatureSensor.requestTemperatures();
+
     while (1)
     {
-        // wait for data AND detect disconnect
-        while (!TemperatureSensor.isConversionComplete())
-        {
-            vTaskDelay(pdMS_TO_TICKS(100));
-        }
+        TemperatureSensor.requestTemperatures();
 
         CurrentTemp = TemperatureSensor.getTempC(LedTempAddress);
-        if(CurrentTemp == DEVICE_DISCONNECTED_C){
-            if(TempSensorStatus()){
-            TempSensorNotOkCallback();
-            }
-        }else{
-        DEBUG_PRINT("Temp: %3.2f°C" CLI_NL,CurrentTemp);
-            if(!TempSensorStatus()){
-            TempSensorOkCallback();
+        if (CurrentTemp == DEVICE_DISCONNECTED_C)
+        {
+            if (TempSensorStatus())
+            {
+                TempSensorNotOkCallback();
             }
         }
-        
+        else
+        {
+            DEBUG_PRINT("Temp: %3.6f°C" CLI_NL, CurrentTemp);
+        }
+
         TemperatureString = String(CurrentTemp, 2);
         if (WebUiIsStarted())
         {
@@ -125,7 +122,6 @@ void TaskTemperature(void *arg)
         float FanPwm = TemperatureCalcFanPower(CurrentTemp);
         LedWakeFanSetDutyCycle(FanPwm);
         LedPwmMaxSet(MaxPwm);
-        TemperatureSensor.requestTemperatures();
         vTaskDelay(pdMS_TO_TICKS(900));
     }
 }
@@ -141,7 +137,7 @@ static float TemperatureCalcMaxPWM(float Temp)
         return 0.0f;
     if (Temp < 0.0f)
         return 50.0f;
-    if(!TempSensorStatus())
+    if (!TempSensorStatus())
         return 0.0f;
 
     float pwm;
