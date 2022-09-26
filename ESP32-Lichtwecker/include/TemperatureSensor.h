@@ -5,5 +5,6 @@
 #define LED_TEMP_BEGIN 80.0f
 
 void TempSensorInit();
+void TempSensorTick();
 
 #endif
