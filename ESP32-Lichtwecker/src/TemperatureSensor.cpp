@@ -29,6 +29,9 @@ int TempSensorOk=false;
 void TempSensorInit()
 {
 
+    vTaskDelay(pdMS_TO_TICKS(1000));
+    oneWire.reset();
+    vTaskDelay(pdMS_TO_TICKS(1000));
     TemperatureSensor.begin();
     TemperatureSensor.setWaitForConversion(false);
 
@@ -42,7 +45,7 @@ void TempSensorInit()
         DEBUG_PRINT("Found Temperature sensor" CLI_NL);
         TempSensorOkCallback();
     }
-    xTaskCreatePinnedToCore(TaskTemperature, "TaskTemperature", 4000, NULL, 2, NULL, CONFIG_ARDUINO_RUNNING_CORE);
+    // xTaskCreatePinnedToCore(TaskTemperature, "TaskTemperature", 4000, NULL, 2, NULL, CONFIG_ARDUINO_RUNNING_CORE);
 }
 
 int TempSensorStatus(){
@@ -60,31 +63,56 @@ static void TempSensorOkCallback(){
     TempSensorOk=true;
 }
 
+void TempSensorTick()
+{
+    static int LastMillis;
+
+    if ((LastMillis + 900) < millis())
+    {
+        LastMillis = millis();
+
+        CurrentTemp = TemperatureSensor.getTempCByIndex(0);
+        if (CurrentTemp != DEVICE_DISCONNECTED_C)
+        {
+            DEBUG_PRINT("Temperature: %3.2f°C" CLI_NL, CurrentTemp);
+            TemperatureString = String(CurrentTemp, 2);
+            if (WebUiIsStarted())
+            {
+                ESPUI.print(WebUiGetTemperatureLabelId(), TemperatureString);
+            }
+            float MaxPwm = TemperatureCalcMaxPWM(CurrentTemp);
+            float FanPwm = TemperatureCalcFanPower(CurrentTemp);
+            LedWakeFanSetDutyCycle(FanPwm);
+            LedPwmMaxSet(MaxPwm);
+        }else{
+            oneWire.reset();
+        }
+        TemperatureSensor.requestTemperatures();
+    }
+}
+
 void TaskTemperature(void *arg)
 {
 
     DEBUG_PRINT("Created Temperature Task" CLI_NL);
-    TemperatureSensor.requestTemperatures();
+
     while (1)
     {
-        // wait for data AND detect disconnect
-        while (!TemperatureSensor.isConversionComplete())
-        {
-            vTaskDelay(pdMS_TO_TICKS(100));
-        }
+        TemperatureSensor.requestTemperatures();
 
         CurrentTemp = TemperatureSensor.getTempC(LedTempAddress);
-        if(CurrentTemp == DEVICE_DISCONNECTED_C){
-            if(TempSensorStatus()){
-            TempSensorNotOkCallback();
-            }
-        }else{
-        DEBUG_PRINT("Temp: %3.2f°C" CLI_NL,CurrentTemp);
-            if(!TempSensorStatus()){
-            TempSensorOkCallback();
+        if (CurrentTemp == DEVICE_DISCONNECTED_C)
+        {
+            if (TempSensorStatus())
+            {
+                TempSensorNotOkCallback();
             }
         }
-        
+        else
+        {
+            DEBUG_PRINT("Temp: %3.6f°C" CLI_NL, CurrentTemp);
+        }
+
         TemperatureString = String(CurrentTemp, 2);
         if (WebUiIsStarted())
         {
@@ -94,7 +122,6 @@ void TaskTemperature(void *arg)
         float FanPwm = TemperatureCalcFanPower(CurrentTemp);
         LedWakeFanSetDutyCycle(FanPwm);
         LedPwmMaxSet(MaxPwm);
-        TemperatureSensor.requestTemperatures();
         vTaskDelay(pdMS_TO_TICKS(900));
     }
 }
@@ -110,7 +137,7 @@ static float TemperatureCalcMaxPWM(float Temp)
         return 0.0f;
     if (Temp < 0.0f)
         return 50.0f;
-    if(!TempSensorStatus())
+    if (!TempSensorStatus())
         return 0.0f;
 
     float pwm;
