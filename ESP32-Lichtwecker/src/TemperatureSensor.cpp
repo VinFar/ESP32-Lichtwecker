@@ -29,6 +29,9 @@ int TempSensorOk=false;
 void TempSensorInit()
 {
 
+    vTaskDelay(pdMS_TO_TICKS(1000));
+    oneWire.reset();
+    vTaskDelay(pdMS_TO_TICKS(1000));
     TemperatureSensor.begin();
     TemperatureSensor.setWaitForConversion(false);
 
