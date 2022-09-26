@@ -107,7 +107,7 @@ void TempSensorTick()
             }
         }else{
             DEBUG_PRINT("Could not read Temp Sensor. Resetting oneWire." CLI_NL);
-            oneWire.reset();
+            //oneWire.reset();
         }
         TemperatureSensor.requestTemperatures();
     }

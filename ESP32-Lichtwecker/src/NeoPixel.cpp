@@ -212,6 +212,7 @@ void NeoPixelTick(){
         {
             if (!ClearedEffect)
             {
+                DEBUG_PRINT("Clearing NeoPixels" CLI_NL);
                 ws2812fx.clear();
                 ws2812fx.show();
                 ClearedEffect = true;
@@ -344,6 +345,7 @@ int ButtonNeoPixelSingleClickCallback(){
     if(RGBEffectStatus){
         RGBEffectStatus=false;
         DEBUG_PRINT("RGB Effect off over Button" CLI_NL);
+        ClearedEffect=false;
         return 1;
     }
     ClearedEffect=false;
