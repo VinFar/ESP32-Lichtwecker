@@ -32,7 +32,7 @@ void DebugPrintFunction(DebugPrefix_t DebugPrefix,
 #define DEBUG_PREFIX_NEOPIXEL	"[NEOPIXEL] "
 #define DEBUG_PREFIX_SINRIC		"[SINRIC] "
 #define DEBUG_PREFIX_OTA		"[OTA] "
-#define DEBUG_PREFIX_CLI	"[CLI] "
+#define DEBUG_PREFIX_CLI		"[CLI] "
 
 #define DEBUG_MSG_MAIN (DebugPrefixes[0])
 #define DEBUG_MSG_WIFI (DebugPrefixes[1])
