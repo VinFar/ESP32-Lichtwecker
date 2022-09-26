@@ -35,12 +35,8 @@ void TaskWebUI(void *arg)
 
   WebUiAlarmSwitchUpdateAll();
 
-  //vTaskDelete(NULL);
-  while (1)
-  {
-    DnsServerProcessNextRequest();
-    //vTaskDelay(pdMS_TO_TICKS(50));
-  }
+  vTaskDelete(NULL);
+
 }
 
 void DnsServerProcessNextRequest()
