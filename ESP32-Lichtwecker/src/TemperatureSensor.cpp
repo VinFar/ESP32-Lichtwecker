@@ -24,6 +24,7 @@ static float TemperatureCalcFanPower(float Temp);
 static void TempSensorOkCallback();
 static void TempSensorNotOkCallback();
 void TempSensorWatchDogExpiredCallback(TimerHandle_t TimerID);
+void TemperatureSensorRead();
 
 float CurrentTemp;
 String TemperatureString = "-20.0";
@@ -48,7 +49,7 @@ void TempSensorInit()
         DEBUG_PRINT("Found Temperature sensor" CLI_NL);
         TempSensorOk=true;
     }
-
+    xTaskCreatePinnedToCore(TaskTemperature, "TaskTemperature", 8000, NULL, 4, NULL, CONFIG_ARDUINO_RUNNING_CORE);
     TempSensorWatchDogTimer = xTimerCreate("TempSensorWatchdog",pdMS_TO_TICKS(5000),pdTRUE,(void*)0,TempSensorWatchDogExpiredCallback);
     if(TempSensorWatchDogTimer != NULL){
         xTimerStart(TempSensorWatchDogTimer,pdMS_TO_TICKS(100));
@@ -56,6 +57,39 @@ void TempSensorInit()
         DEBUG_PRINT("Could not create TempSensorWatchdog Timer" CLI_NL);
         TempSensorOk=false;
     }
+}
+
+void TaskTemperature(void *arg)
+{
+    while(1){
+        TemperatureSensorRead();
+        vTaskDelay(900);
+    }
+}
+
+void TemperatureSensorRead(){
+    CurrentTemp = TemperatureSensor.getTempC(LedTempAddress);
+    if (CurrentTemp != DEVICE_DISCONNECTED_C)
+    {
+        DEBUG_PRINT("Temperature: %3.2f°C" CLI_NL, CurrentTemp);
+        TemperatureString = String(CurrentTemp, 2);
+        if (WebUiIsStarted())
+        {
+            ESPUI.print(WebUiGetTemperatureLabelId(), TemperatureString);
+        }
+        float MaxPwm = TemperatureCalcMaxPWM(CurrentTemp);
+        float FanPwm = TemperatureCalcFanPower(CurrentTemp);
+        LedWakeFanSetDutyCycle(FanPwm);
+        LedPwmMaxSet(MaxPwm);
+        TempSensorOk=true;
+        if(TempSensorWatchDogTimer != NULL){
+            xTimerReset(TempSensorWatchDogTimer,pdMS_TO_TICKS(100));
+        }
+    }else{
+        DEBUG_PRINT("Could not read Temp Sensor. Resetting oneWire." CLI_NL);
+        //oneWire.reset();
+    }
+    TemperatureSensor.requestTemperatures();
 }
 
 int TempSensorStatus(){
@@ -88,28 +122,7 @@ void TempSensorTick()
     if ((LastMillis + 900) < millis())
     {
         LastMillis = millis();
-
-        CurrentTemp = TemperatureSensor.getTempCByIndex(0);
-        if (CurrentTemp != DEVICE_DISCONNECTED_C)
-        {
-            DEBUG_PRINT("Temperature: %3.2f°C" CLI_NL, CurrentTemp);
-            TemperatureString = String(CurrentTemp, 2);
-            if (WebUiIsStarted())
-            {
-                ESPUI.print(WebUiGetTemperatureLabelId(), TemperatureString);
-            }
-            float MaxPwm = TemperatureCalcMaxPWM(CurrentTemp);
-            float FanPwm = TemperatureCalcFanPower(CurrentTemp);
-            LedWakeFanSetDutyCycle(FanPwm);
-            LedPwmMaxSet(MaxPwm);
-            if(TempSensorWatchDogTimer != NULL){
-                xTimerReset(TempSensorWatchDogTimer,pdMS_TO_TICKS(100));
-            }
-        }else{
-            DEBUG_PRINT("Could not read Temp Sensor. Resetting oneWire." CLI_NL);
-            //oneWire.reset();
-        }
-        TemperatureSensor.requestTemperatures();
+        TemperatureSensorRead();
     }
 }
 
