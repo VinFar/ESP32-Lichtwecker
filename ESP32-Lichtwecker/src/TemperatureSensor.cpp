@@ -63,6 +63,34 @@ static void TempSensorOkCallback(){
     TempSensorOk=true;
 }
 
+void TempSensorTick()
+{
+    static int LastMillis;
+
+    if ((LastMillis + 900) < millis())
+    {
+        LastMillis = millis();
+
+        CurrentTemp = TemperatureSensor.getTempCByIndex(0);
+        if (CurrentTemp != DEVICE_DISCONNECTED_C)
+        {
+            DEBUG_PRINT("Temperature: %3.2f°C" CLI_NL, CurrentTemp);
+            TemperatureString = String(CurrentTemp, 2);
+            if (WebUiIsStarted())
+            {
+                ESPUI.print(WebUiGetTemperatureLabelId(), TemperatureString);
+            }
+            float MaxPwm = TemperatureCalcMaxPWM(CurrentTemp);
+            float FanPwm = TemperatureCalcFanPower(CurrentTemp);
+            LedWakeFanSetDutyCycle(FanPwm);
+            LedPwmMaxSet(MaxPwm);
+        }else{
+            oneWire.reset();
+        }
+        TemperatureSensor.requestTemperatures();
+    }
+}
+
 void TaskTemperature(void *arg)
 {
 
