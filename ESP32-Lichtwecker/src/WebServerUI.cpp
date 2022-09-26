@@ -21,15 +21,12 @@ bool EspUiStarted = false;
 void TaskWebUI(void *arg)
 {
   DEBUG_PRINT("Created TaskWebUI" CLI_NL);
-  // ESPUI.setVerbosity(Verbosity::VerboseJSON);
   DEBUG_PRINT("IP: %d.%d.%d.%d" CLI_NL,apIP[0],apIP[1],apIP[2],apIP[3]);
   bool Status = dnsServer.start(DNS_PORT, "*", apIP);
   DEBUG_PRINT("DNS Status %s" CLI_NL, Status ? "OK" : "Fail");
   WebUiInitTabs();
 
-  ESPUI.begin("Lichtwäcker v1.1.0.0");
-  // ESPUI.beginLITTLEFS("Lichtwecker");
-  // ESPUI.beginSPIFFS("Lichtwecker");
+  ESPUI.begin("Lichtwäcker v1.1.0.3");
   DEBUG_PRINT("Started WebUI" CLI_NL);
   EspUiStarted = true;
 
