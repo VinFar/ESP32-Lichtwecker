@@ -6,6 +6,7 @@
 #include "NeoPixel.h"
 #include "SinricSmart.h"
 #include "OTA.h"
+#include "CLI.h"
 
 #define DEBUG_MSG DEBUG_MSG_WIFI
 
@@ -58,7 +59,8 @@ static void WifiConnectedCallback(){
   xTaskCreatePinnedToCore(TaskSNTP,"TaskSNTP",8000,NULL,1,NULL,CONFIG_ARDUINO_RUNNING_CORE);
   setupSinricPro();
   OtaInit();
-  NeoPixelShowStatusBootOk(); 
+  NeoPixelShowStatusBootOk();
+  CliInit();
 }
 
 static void WifiDisconnectedCallback(){
