@@ -5,4 +5,7 @@
 
 #define CLI_PORT 8001
 
+void CliInit();
+int CliWrite(const char *str);
+
 #endif

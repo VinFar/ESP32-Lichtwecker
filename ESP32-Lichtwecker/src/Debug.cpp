@@ -1,4 +1,5 @@
 #include "Debug.h"
+#include "CLI.h"
 
 #ifdef DEBUG
 
@@ -10,6 +11,7 @@ void DebugPrintFunction(DebugPrefix_t DebugPrefix,
     if (DebugPrefix.Enabled)
     {
         Serial.print(DebugPrefix.DebugPrefix);
+        CliWrite(DebugPrefix.DebugPrefix);
         char loc_buf[64];
         char *temp = loc_buf;
         va_list arg;
@@ -35,6 +37,7 @@ void DebugPrintFunction(DebugPrefix_t DebugPrefix,
         }
         va_end(arg);
         len = Serial.write((uint8_t *)temp, len);
+        CliWrite(temp);
         if (temp != loc_buf)
         {
             free(temp);
