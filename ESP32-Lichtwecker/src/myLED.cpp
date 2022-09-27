@@ -3,6 +3,7 @@
 #include "WebServerStatusTab.h"
 #include "WebServerUI.h"
 #include "SinricSmart.h"
+#include "TemperatureSensor.h"
 
 #define DEBUG_MSG DEBUG_MSG_LED
 
@@ -36,9 +37,14 @@ void LedWakeSetDutyCycle(float DutyCycle)
         DEBUG_PRINT("Reduced max PWM of LED to: %3.2f due to too high temperature!" CLI_NL,DutyCycle);
     }
 
+    if(!TempSensorStatus()){
+        DEBUG_PRINT("Disabling Wake LED due to error on Temp Sensor" CLI_NL);
+        DutyCycle=0.0f;
+    }
+
     WebUiLedPwmUpdateLabel(DutyCycle);
     CurrentDutyCycleOfLedMatched = DutyCycle;
-    DEBUG_PRINT("DutyCycles for PWM Driver %f" CLI_NL, DutyCycle);
+    DEBUG_PRINT("DutyCycles for PWM Driver %3.2f" CLI_NL, DutyCycle);
     DutyCycle = 100.0f - DutyCycle;
     int DutyCycleValue = (int)((((float)(1 << LED_WAKE_RESOLUTION)) * DutyCycle) / 100.0f);
     ledcWrite(LED_WAKE_CHANNEL, DutyCycleValue);

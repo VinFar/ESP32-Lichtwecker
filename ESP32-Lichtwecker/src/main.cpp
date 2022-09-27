@@ -35,10 +35,9 @@ void setup()
 
 void loop()
 {
-  
   ButtonTick();
   NeoPixelTick();
-  // SinricHandle();
+  SinricHandle();
   OtaTick();
   TempSensorTick();
 }

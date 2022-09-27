@@ -54,7 +54,7 @@ void TaskAlarm(void *arg)
                 {
                     DEBUG_PRINT("Alarm for %s triggered. Starting Task..." CLI_NL, Alarms[AlarmIndex].WeekDayString);
                     AlarmIndexes[AlarmIndex] = AlarmIndex;
-                    xTaskCreatePinnedToCore(TaskAlarmTriggered, "TaskAlarmTriggered", 4000, &AlarmIndexes[AlarmIndex], 2, NULL, CONFIG_ARDUINO_RUNNING_CORE);
+                    xTaskCreatePinnedToCore(TaskAlarmTriggered, "TaskAlarmTriggered", 4000, &AlarmIndexes[AlarmIndex], 1, NULL, CONFIG_ARDUINO_RUNNING_CORE);
                 }
                 else
                 {
