@@ -26,7 +26,7 @@ void TaskWebUI(void *arg)
   DEBUG_PRINT("DNS Status %s" CLI_NL, Status ? "OK" : "Fail");
   WebUiInitTabs();
 
-  ESPUI.begin("Lichtwäcker v1.1.0.4");
+  ESPUI.begin("Lichtwäcker v1.1.0.5");
   DEBUG_PRINT("Started WebUI" CLI_NL);
   EspUiStarted = true;
 
