@@ -3626,7 +3626,7 @@
   (symbol (lib_id "Mechanical:MountingHole_Pad") (at 246.38 68.58 0) (unit 1)
     (in_bom yes) (on_board yes) (fields_autoplaced)
     (uuid f4136865-99c6-4217-9ef5-1189af92b8f7)
-    (property "Reference" "H?" (id 0) (at 248.92 66.4015 0)
+    (property "Reference" "H6" (id 0) (at 248.92 66.4015 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "MountingHole_Pad" (id 1) (at 248.92 69.1766 0)
@@ -3831,7 +3831,7 @@
       (reference "H5") (unit 1) (value "MountingHole_Pad") (footprint "MountingHole:MountingHole_2.2mm_M2_DIN965_Pad")
     )
     (path "/f4136865-99c6-4217-9ef5-1189af92b8f7"
-      (reference "H?") (unit 1) (value "MountingHole_Pad") (footprint "MountingHole:MountingHole_2.2mm_M2_DIN965_Pad")
+      (reference "H6") (unit 1) (value "MountingHole_Pad") (footprint "MountingHole:MountingHole_2.2mm_M2_DIN965_Pad")
     )
     (path "/4969196e-6305-4977-8756-05f46d7c9444"
       (reference "IC1") (unit 1) (value "MCP3221A6T-E_OT") (footprint "SOT95P280X145-5N")
