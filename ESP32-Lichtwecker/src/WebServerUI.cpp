@@ -28,7 +28,7 @@ void TaskWebUI(void *arg)
   WebUiInitTabs();
 
   ESPUI.sliderContinuous = true;
-  ESPUI.begin("Lichtwecker");
+  ESPUI.begin("Lichtwäcker v1.0");
   // ESPUI.beginLITTLEFS("Lichtwecker");
   // ESPUI.beginSPIFFS("Lichtwecker");
   DEBUG_PRINT("Started WebUI" CLI_NL);
@@ -36,6 +36,7 @@ void TaskWebUI(void *arg)
 
   WebUiAlarmSwitchUpdateAll();
 
+  // vTaskDelete(NULL);
   while (1)
   {
     vTaskDelay(pdMS_TO_TICKS(50));

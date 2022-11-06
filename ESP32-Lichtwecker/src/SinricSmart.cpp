@@ -4,11 +4,22 @@
 #include "myLED.h"
 #include "SinricCredentials.h"
 #include "NeoPixel.h"
+<<<<<<< HEAD
 
 #define DEBUG_MSG DEBUG_MSG_NEOPIXEL
 
+=======
 
-// we use a struct to store all states and values for our light
+#if defined(APP_KEY) || defined(APP_SECRET) || defined(LIGHT_ID)
+#else
+#error "You need to define your Sinric Credentials"
+#endif
+
+#define DEBUG_MSG DEBUG_MSG_NEOPIXEL
+
+SinricProLight &myLight = SinricPro[LIGHT_ID];
+>>>>>>> 8f376aa05ba98f37348fb990b5e0a66ab842ea6d
+
 struct {
   bool powerState = false;
   int brightness = 0;
@@ -21,7 +32,11 @@ bool onPowerState(const String &deviceId, bool &state) {
     LedReadLightOn();
   }else{
     LedReadLightOff();
+<<<<<<< HEAD
     setAll(0,0,0);
+=======
+    NeoPixelAllOff();
+>>>>>>> 8f376aa05ba98f37348fb990b5e0a66ab842ea6d
   }
   return true; // request handled properly
 }
@@ -41,26 +56,43 @@ bool onAdjustBrightness(const String &deviceId, int brightnessDelta) {
   return true;
 }
 
+<<<<<<< HEAD
 bool onColor(const String &deviceId, byte &r, byte &g, byte &b) {
   DEBUG_PRINT("Color set to: %d Red, %d Green, %d Blue" CLI_NL,r,g,b);
   setAll(r,g,b);
   return true;
 }
 
+=======
+bool onSetColor(const String &deviceId, byte &R, byte &G, byte &B){
+  DEBUG_PRINT("Device Color set to: R:%d, G:%d, B:%d" CLI_NL,R,G,B);
+  NeoPixelsetAll(R,G,B);
+  return true;
+}
+
+void SinricSendCurrentBrightness(int Brightness){
+  myLight.sendBrightnessEvent(Brightness);
+}
+
+>>>>>>> 8f376aa05ba98f37348fb990b5e0a66ab842ea6d
 void setupSinricPro() {
   // get a new Light device from SinricPro
-  SinricProLight &myLight = SinricPro[LIGHT_ID];
+  
 
   
   // set callback function to device
   myLight.onPowerState(onPowerState);
   myLight.onBrightness(onBrightness);
   myLight.onAdjustBrightness(onAdjustBrightness);
+<<<<<<< HEAD
   myLight.onColor(onColor);
+=======
+  myLight.onColor(onSetColor);
+>>>>>>> 8f376aa05ba98f37348fb990b5e0a66ab842ea6d
 
   // setup SinricPro
   SinricPro.onConnected([](){ DEBUG_PRINT("Connected to SinricPro" CLI_NL); }); 
-  SinricPro.onDisconnected([](){ DEBUG_PRINT("Disconnected from SinricPro" CLI_NL); });
+  SinricPro.onDisconnected([](){ DEBUG_PRINT("Disconnected from SinricPro" CLI_NL);  NeoPixelShowStatusError();});
   SinricPro.begin(APP_KEY, APP_SECRET);
 
 }

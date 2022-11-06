@@ -11,5 +11,6 @@
 
 void setupSinricPro();
 void SinricHandle();
+void SinricSendCurrentBrightness(int Brightness);
 
 #endif

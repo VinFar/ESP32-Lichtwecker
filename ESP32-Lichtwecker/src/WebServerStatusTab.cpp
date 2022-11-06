@@ -4,6 +4,7 @@
 #include "WebServerStatusTab.h"
 #include "myLED.h"
 #include "WebServerUI.h"
+#include "SinricSmart.h"
 
 #define DEBUG_MSG DEBUG_MSG_WEBUI
 
@@ -42,6 +43,7 @@ void WebUiLedPwmUpdateLabel(float DutyCycle)
       DutyCycle = 0.0f;
     
     String DcString = String(DutyCycle, 2);
+    SinricSendCurrentBrightness(DutyCycle);
     ESPUI.print(WebUiDutyCycleLedLabelId, DcString);
   }
 }
