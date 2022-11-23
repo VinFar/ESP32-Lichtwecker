@@ -12,7 +12,7 @@
 
 MCP3221 mcp3221(ADC_I2C_ADDRESS);
 const uint8_t address = ADC_I2C_ADDRESS;
-const uint16_t ref_voltage = 4096;  // in mV
+const uint16_t ref_voltage = 4086;  // in mV
 
 TimerHandle_t TempSensorWatchDogTimer=NULL;
 

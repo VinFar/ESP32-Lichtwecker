@@ -53,7 +53,7 @@ uint16_t MCP3221::readMean()
 
 float MCP3221::toVoltage(uint16_t data, uint32_t vref)
 {
-    return ((float)(vref * data) / 4095.0f);
+    return ((float)((uint32_t)vref * data) / 4095.0f);
 }
 
 void MCP3221::tick()
