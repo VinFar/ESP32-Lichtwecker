@@ -31,3 +31,4 @@ fp-info-cache
 *.xml
 *.csv
 >>>>>>> PCB-V2.0
+ESP32-Lichtwecker/compile_commands.json
