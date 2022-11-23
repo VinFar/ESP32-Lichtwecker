@@ -39,6 +39,7 @@ void loop()
   NeoPixelTick();
   SinricHandle();
   OtaTick();
+  TempSensorTick();
 }
 
 #undef DEBUG_MSG

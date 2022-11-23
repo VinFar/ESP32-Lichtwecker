@@ -30,10 +30,10 @@ int TempSensorOk=false;
 
 void TempSensorInit()
 {
-    Wire.begin(SDA,SCL);
-    mcp3221.init();
+    Wire.begin(SDA, SCL);
+    mcp3221.init(20, 60);
 
-    uint16_t result = mcp3221.read();
+    uint16_t result = mcp3221.readMean();
     float voltage = mcp3221.toVoltage(result, ref_voltage);
     DEBUG_PRINT("ADC counts: %d" CLI_NL, result);
     DEBUG_PRINT("ADC Voltage: %d" CLI_NL, voltage);
@@ -52,17 +52,14 @@ void TaskTemperature(void *arg)
 {
     while(1){
         TemperatureSensorRead();
-        vTaskDelay(900);
+        vTaskDelay(TASK_TEMPERATURE_TICK);
     }
 }
 
 float TemperatureSensorGetTempC(){
-    uint16_t result = mcp3221.read();
-    if(result != 0xffff){
-        float voltage = mcp3221.toVoltage(result, ref_voltage);
-        return (voltage/10) - 273.15f;
-    }
-    return TEMP_ERROR;
+    uint16_t result = mcp3221.readMean();
+
+    return (mcp3221.toVoltage(result, ref_voltage) / 10.0f) - 273.15f;
 }
 
 void TemperatureSensorRead(){
@@ -112,13 +109,7 @@ static void TempSensorOkCallback(){
 
 void TempSensorTick()
 {
-    static int LastMillis;
-
-    if ((LastMillis + 900) < millis())
-    {
-        LastMillis = millis();
-        TemperatureSensorRead();
-    }
+    mcp3221.tick();
 }
 
 

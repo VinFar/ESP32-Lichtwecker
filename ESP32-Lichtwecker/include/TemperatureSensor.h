@@ -8,6 +8,8 @@
 #define LED_TEMP_MAX 90.0f
 #define LED_TEMP_BEGIN 80.0f
 
+#define TASK_TEMPERATURE_TICK 1000
+
 void TempSensorInit();
 void TempSensorTick();
 int TempSensorStatus();
