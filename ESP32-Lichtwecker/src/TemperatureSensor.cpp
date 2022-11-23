@@ -1,21 +1,19 @@
 #include "main.h"
 #include "TemperatureSensor.h"
-#include <OneWire.h>
-#include <DallasTemperature.h>
 #include "ESPUI.h"
 #include "WebServerStatusTab.h"
 #include "myLED.h"
 #include "WebServerUI.h"
 #include "NeoPixel.h"
+#include <Wire.h>
+#include "mcp3221.h"
 
 #define DEBUG_MSG DEBUG_MSG_TEMP
 
-// Temperaturesensor is on Pin 14
-#define ONE_WIRE_BUS 14
+MCP3221 mcp3221(ADC_I2C_ADDRESS);
+const uint8_t address = ADC_I2C_ADDRESS;
+const uint16_t ref_voltage = 4096;  // in mV
 
-OneWire oneWire(ONE_WIRE_BUS);
-DallasTemperature TemperatureSensor(&oneWire);
-DeviceAddress LedTempAddress;
 TimerHandle_t TempSensorWatchDogTimer=NULL;
 
 void TaskTemperature(void *arg);
@@ -27,28 +25,19 @@ void TempSensorWatchDogExpiredCallback(TimerHandle_t TimerID);
 void TemperatureSensorRead();
 
 float CurrentTemp;
-String TemperatureString = "-20.0";
+String TemperatureString = "-20.00";
 int TempSensorOk=false;
 
 void TempSensorInit()
 {
-    vTaskDelay(pdMS_TO_TICKS(1000));
-    oneWire.reset();
-    vTaskDelay(pdMS_TO_TICKS(1000));
-    TemperatureSensor.begin();
-    TemperatureSensor.setWaitForConversion(false);
-    TemperatureSensor.setResolution(9);
+    Wire.begin(SDA,SCL);
+    mcp3221.init();
 
-    if (!TemperatureSensor.getAddress(LedTempAddress, 0))
-    {
-        DEBUG_PRINT("Unable to find address for Device 0");
-        TempSensorOk=false;
-    }
-    else
-    {
-        DEBUG_PRINT("Found Temperature sensor" CLI_NL);
-        TempSensorOk=true;
-    }
+    uint16_t result = mcp3221.read();
+    float voltage = mcp3221.toVoltage(result, ref_voltage);
+    DEBUG_PRINT("ADC counts: %d" CLI_NL, result);
+    DEBUG_PRINT("ADC Voltage: %d" CLI_NL, voltage);
+
     xTaskCreatePinnedToCore(TaskTemperature, "TaskTemperature", 8000, NULL, 4, NULL, CONFIG_ARDUINO_RUNNING_CORE);
     TempSensorWatchDogTimer = xTimerCreate("TempSensorWatchdog",pdMS_TO_TICKS(5000),pdTRUE,(void*)0,TempSensorWatchDogExpiredCallback);
     if(TempSensorWatchDogTimer != NULL){
@@ -67,9 +56,19 @@ void TaskTemperature(void *arg)
     }
 }
 
+float TemperatureSensorGetTempC(){
+    uint16_t result = mcp3221.read();
+    if(result != 0xffff){
+        float voltage = mcp3221.toVoltage(result, ref_voltage);
+        return (voltage/10) - 273.15f;
+    }
+    return TEMP_ERROR;
+}
+
 void TemperatureSensorRead(){
-    CurrentTemp = TemperatureSensor.getTempC(LedTempAddress);
-    if (CurrentTemp != DEVICE_DISCONNECTED_C)
+
+    CurrentTemp = TemperatureSensorGetTempC();
+    if (CurrentTemp != TEMP_ERROR)
     {
         DEBUG_PRINT("Temperature: %3.2f°C" CLI_NL, CurrentTemp);
         TemperatureString = String(CurrentTemp, 2);
@@ -87,9 +86,7 @@ void TemperatureSensorRead(){
         }
     }else{
         DEBUG_PRINT("Could not read Temp Sensor. Resetting oneWire." CLI_NL);
-        //oneWire.reset();
     }
-    TemperatureSensor.requestTemperatures();
 }
 
 int TempSensorStatus(){
@@ -106,8 +103,6 @@ static void TempSensorNotOkCallback(){
     LedWakeSetDutyCycle(0.0f);
     NeoPixelShowStatusError();
     TempSensorOk=false;
-    oneWire.reset();
-    TemperatureSensor.begin();
 }
 
 static void TempSensorOkCallback(){
