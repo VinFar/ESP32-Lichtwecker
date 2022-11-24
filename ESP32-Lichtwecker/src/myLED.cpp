@@ -18,6 +18,9 @@ void LedWakeInit()
 
     ledcSetup(LED_WAKE_FAN_CHANNEL, LED_WAKE_FAN_FREQUENCY, LED_WAKE_FAN_RESOLUTION);
     ledcAttachPin(LED_WAKE_FAN_PIN, LED_WAKE_FAN_CHANNEL);
+
+    pinMode(LED_WAKE_RELAY_PIN, OUTPUT);
+    
 }
 
 void LedWakeSetDutyCycle(float DutyCycle)
@@ -45,6 +48,11 @@ void LedWakeSetDutyCycle(float DutyCycle)
     WebUiLedPwmUpdateLabel(DutyCycle);
     CurrentDutyCycleOfLedMatched = DutyCycle;
     DEBUG_PRINT("DutyCycles for PWM Driver %3.2f" CLI_NL, DutyCycle);
+    if(DutyCycle == 0.0f){
+        LED_WAKE_RELAY_OFF;
+    }else{
+        LED_WAKE_RELAY_ON;
+    }
     DutyCycle = 100.0f - DutyCycle;
     int DutyCycleValue = (int)((((float)(1 << LED_WAKE_RESOLUTION)) * DutyCycle) / 100.0f);
     ledcWrite(LED_WAKE_CHANNEL, DutyCycleValue);
