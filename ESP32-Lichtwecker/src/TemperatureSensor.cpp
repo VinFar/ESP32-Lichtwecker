@@ -67,7 +67,7 @@ void TemperatureSensorRead(){
     CurrentTemp = TemperatureSensorGetTempC();
     if (CurrentTemp != TEMP_ERROR)
     {
-        DEBUG_PRINT("Temperature: %3.2f°C" CLI_NL, CurrentTemp);
+        //DEBUG_PRINT("Temperature: %3.2f°C" CLI_NL, CurrentTemp);
         TemperatureString = String(CurrentTemp, 2);
         if (WebUiIsStarted())
         {
