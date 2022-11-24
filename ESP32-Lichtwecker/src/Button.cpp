@@ -14,6 +14,7 @@ static void ButtonDoubleClickCallback();
 static void ButtonSingleClick();
 static void ButtonLongPressStart();
 static void ButtonLongPressEnd();
+static void ButtonMultiClickCallback();
 static void ButtonTimerCallbackFunction(TimerHandle_t xTimer);
 
 TimerHandle_t ButtonTimer;
@@ -28,6 +29,7 @@ void ButtonInit()
     button.attachClick(ButtonSingleClick);
     button.attachLongPressStart(ButtonLongPressStart);
     button.attachLongPressStop(ButtonLongPressEnd);
+    button.attachMultiClick(ButtonMultiClickCallback);
     // button.setClickTicks(600);
 
     ButtonTimer = xTimerCreate("TimerButtonLongPress", pdMS_TO_TICKS(100), pdTRUE, (void *)0, ButtonTimerCallbackFunction);
@@ -89,6 +91,12 @@ static void ButtonSingleClick()
 static void ButtonDoubleClickCallback()
 {
     DEBUG_PRINT("Button Double Click" CLI_NL);
+    LedWakeSetDutyCycle(100.0f);
+}
+
+static void ButtonMultiClickCallback(){
+    DEBUG_PRINT("Button Multi Click Callback" CLI_NL);
+    ESP.restart();
 }
 
 #undef DEBUG_MSG

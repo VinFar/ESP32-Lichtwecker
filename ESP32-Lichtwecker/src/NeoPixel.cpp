@@ -8,8 +8,7 @@
 #define CNT 24
 #define MAXHUE 256 * 6
 
-uint32_t getPixelColorHsv(
-    uint16_t n, uint16_t h, uint8_t s, uint8_t v);
+uint32_t getPixelColorHsv(uint16_t h, uint8_t s, uint8_t v);
 static void WebUiRGBSwitcherCallback(Control *Switcher, int value);
 static void WebUiRGBSliderCallback(Control *Slider, int value);
 static void WebUiRGBEffectSelect(Control *Switcher, int value);
@@ -59,7 +58,8 @@ void NeoPixelInit()
 }
 
 void NeoPixelSetColorForAnimation(uint8_t R, uint8_t G, uint8_t B){
-    if(!RGBEffectStatus)
+    RGBEffectStatus=true;
+    if(ws2812fx.getMode()!=FX_MODE_FADE)
         ws2812fx.setMode(FX_MODE_FADE);
     ws2812fx.setColor(ws2812fx.Color(R,G,B));
 }
@@ -82,70 +82,6 @@ void NeoPixelShowStatusBootOk(){
     xTimerStart(Timer,pdMS_TO_TICKS(100));
 }
 
-void WebUiRGBInit()
-{
-
-    WebUiRGBEffectSwitchID = ESPUI.addControl(ControlType::Switcher, "Effekt Ein/aus", "", ControlColor::Alizarin, WebUiRGBTab, &WebUiRGBSwitcherCallback);
-
-    WebUiRGBEffectSelector = ESPUI.addControl(ControlType::Select, "Effekt auswählen", "", ControlColor::Alizarin, WebUiRGBTab, &WebUiRGBEffectSelect);
-
-    for (int i = 0; i < ws2812fx.getModeCount() - 8; i++)
-    {
-        ESPUI.addControl(ControlType::Option, (const char *)ws2812fx.getModeName(i), (const char *)ws2812fx.getModeName(i), ControlColor::Alizarin, WebUiRGBEffectSelector);
-    }
-
-    WebUiRGBSliderSpeed = ESPUI.addControl(ControlType::Slider, "Geschwindigkeit", "50", ControlColor::Alizarin, WebUiRGBTab, &WebUiSliderSpeedCallback);
-
-    WebUiRGBSliderRed = ESPUI.addControl(ControlType::Slider, "Rot", "0", ControlColor::Alizarin, WebUiRGBTab, &WebUiRGBSliderCallback);
-
-    WebUiRGBSliderGreen = ESPUI.addControl(ControlType::Slider, "Gruen", "0", ControlColor::Alizarin, WebUiRGBTab, &WebUiRGBSliderCallback);
-
-    WebUiRGBSliderBlue = ESPUI.addControl(ControlType::Slider, "Blau", "0", ControlColor::Alizarin, WebUiRGBTab, &WebUiRGBSliderCallback);
-
-    WebUiRGBSliderBrightness = ESPUI.addControl(ControlType::Slider, "Helligkeit", "0", ControlColor::Alizarin, WebUiRGBTab, &WebUiRGBSliderCallback);
-}
-
-void WebUiSliderSpeedCallback(Control *Slider, int value)
-{
-    RGBEffectCurrentDelay = -Slider->value.toFloat() * 0.018 + 1.9;
-    ws2812fx.setSpeed((int)(5000.0f * RGBEffectCurrentDelay));
-    DEBUG_PRINT("Geschw. Mult.: %.3f" CLI_NL, RGBEffectCurrentDelay);
-}
-
-void WebUiRGBCreate()
-{
-    WebUiRGBTab = ESPUI.addControl(ControlType::Tab, WebUiRGBTabName, WebUiRGBTabName);
-    DEBUG_PRINT("Created RGB Tab" CLI_NL);
-}
-
-static void WebUiRGBEffectSelect(Control *Switcher, int value)
-{
-    int IdxForEffectArray = RgbEffectGetIndex(Switcher->value.c_str());
-    ws2812fx.setMode(IdxForEffectArray);
-    DEBUG_PRINT("Selected %s. IDX %d" CLI_NL, Switcher->value.c_str(),IdxForEffectArray);
-}
-
-static int RgbEffectGetIndex(const char *Effect)
-{
-
-    for (int i = 0; i < ws2812fx.getModeCount() - 8; i++)
-    {
-        if (!strcmp((const char *)ws2812fx.getModeName(i), Effect))
-        {
-            return i;
-        }
-    }
-    return 0;
-}
-
-static void WebUiRGBSwitcherCallback(Control *Switcher, int value)
-{
-    int valueFromSwitcher = Switcher->value.toInt();
-    DEBUG_PRINT("RGB Effect %s" CLI_NL, valueFromSwitcher ? "on" : "off");
-    RGBEffectStatus = valueFromSwitcher;
-    ClearedEffect = false;
-}
-
 void NeoPixelAllOff(){
     RGBEffectStatus=false;
     ClearedEffect=false;
@@ -161,62 +97,12 @@ void NeoPixelCallbackFromTimer(TimerHandle_t xTimer){
     NeoPixelAllOff();
 }
 
-
-static void WebUiRGBSliderCallback(Control *Slider, int value)
-{
-
-    float valueFromSlider = Slider->value.toFloat() * 2.55f;
-    int ID = Slider->id;
-
-    if (valueFromSlider > 255.0f)
-    {
-        valueFromSlider = 255.0f;
-    }
-    if (valueFromSlider < 0.0f)
-    {
-        valueFromSlider = 0.0f;
-    }
-
-    if (ID == WebUiRGBSliderRed)
-    {
-        NeoPixelCurrentRed = (uint8_t)(valueFromSlider);
-        DEBUG_PRINT("NeoPixel Red set to %d" CLI_NL, NeoPixelCurrentRed);
-    }
-    else if (ID == WebUiRGBSliderGreen)
-    {
-        NeoPixelCurrentGreen = (uint8_t)(valueFromSlider);
-        DEBUG_PRINT("NeoPixel Red set to %d" CLI_NL, NeoPixelCurrentGreen);
-    }
-    else if (ID == WebUiRGBSliderBlue)
-    {
-        NeoPixelCurrentBlue = (uint8_t)(valueFromSlider);
-        DEBUG_PRINT("NeoPixel Red set to %d" CLI_NL, NeoPixelCurrentBlue);
-    }
-    else if (ID == WebUiRGBSliderBrightness)
-    {
-        NeoPixelCurrentBrightness = (uint8_t)(valueFromSlider);
-        DEBUG_PRINT("NeoPixel Brightness set to %d" CLI_NL, WebUiRGBSliderBrightness);
-        ws2812fx.setBrightness(NeoPixelCurrentBrightness);
-        UpdateLeds = true;
-        return;
-    }
-    else
-    {
-        return;
-    }
-    uint32_t color = ws2812fx.Color(NeoPixelCurrentRed, NeoPixelCurrentGreen, NeoPixelCurrentBlue);
-    ws2812fx.fill(color);
-    ws2812fx.setColor(color);
-    UpdateLeds = true;
-}
-
 void showStrip()
 {
     ws2812fx.show();
 }
 
-uint32_t getPixelColorHsv(
-    uint16_t n, uint16_t h, uint8_t s, uint8_t v)
+uint32_t getPixelColorHsv(uint16_t h, uint8_t s, uint8_t v)
 {
 
     uint8_t r, g, b;
@@ -336,19 +222,144 @@ void NeoPixelTick()
         }
         if (UpdateLeds)
         {
-            UpdateLeds = false;
-            ws2812fx.show();
+            if (!ClearedEffect)
+            {
+                DEBUG_PRINT("Clearing NeoPixels" CLI_NL);
+                ws2812fx.clear();
+                ws2812fx.show();
+                ClearedEffect = true;
+            }
+            if (UpdateLeds)
+            {
+                UpdateLeds = false;
+                ws2812fx.show();
+            }
         }
     }
 }
 
-int ButtonNeoPixelSingleClickCallback()
+void WebUiRGBInit()
 {
+
+    WebUiRGBEffectSwitchID = ESPUI.addControl(ControlType::Switcher, "Effekt Ein/aus", "", ControlColor::Alizarin, WebUiRGBTab, &WebUiRGBSwitcherCallback);
+
+    WebUiRGBEffectSelector = ESPUI.addControl(ControlType::Select, "Effekt auswählen", "", ControlColor::Alizarin, WebUiRGBTab, &WebUiRGBEffectSelect);
+
+
+    for (int i = 0; i < ws2812fx.getModeCount()-8; i++)
+    {
+        ESPUI.addControl(ControlType::Option, (const char*)ws2812fx.getModeName(i),(const char*)ws2812fx.getModeName(i) , ControlColor::Alizarin, WebUiRGBEffectSelector);
+    }
+
+    WebUiRGBSliderSpeed = ESPUI.addControl(ControlType::Slider, "Geschwindigkeit", "50", ControlColor::Alizarin, WebUiRGBTab, &WebUiSliderSpeedCallback);
+
+    WebUiRGBSliderRed = ESPUI.addControl(ControlType::Slider, "Rot", "0", ControlColor::Alizarin, WebUiRGBTab, &WebUiRGBSliderCallback);
+
+    WebUiRGBSliderGreen = ESPUI.addControl(ControlType::Slider, "Gruen", "0", ControlColor::Alizarin, WebUiRGBTab, &WebUiRGBSliderCallback);
+
+    WebUiRGBSliderBlue = ESPUI.addControl(ControlType::Slider, "Blau", "0", ControlColor::Alizarin, WebUiRGBTab, &WebUiRGBSliderCallback);
+
+    WebUiRGBSliderBrightness = ESPUI.addControl(ControlType::Slider, "Helligkeit", "0", ControlColor::Alizarin, WebUiRGBTab, &WebUiRGBSliderCallback);
+}
+
+void WebUiSliderSpeedCallback(Control *Slider, int value)
+{
+    RGBEffectCurrentDelay = -Slider->value.toFloat() * 0.018 + 1.9;
+    ws2812fx.setSpeed((int)(5000.0f*RGBEffectCurrentDelay));
+    DEBUG_PRINT("Geschw. Mult.: %.3f" CLI_NL, RGBEffectCurrentDelay);
+}
+
+void WebUiRGBCreate()
+{
+    WebUiRGBTab = ESPUI.addControl(ControlType::Tab, WebUiRGBTabName, WebUiRGBTabName);
+    DEBUG_PRINT("Created RGB Tab" CLI_NL);
+}
+
+static void WebUiRGBEffectSelect(Control *Switcher, int value)
+{
+    int IdxForEffectArray = RgbEffectGetIndex(Switcher->value.c_str());
+    ws2812fx.setMode(IdxForEffectArray);
+    DEBUG_PRINT("Selected %s. IDX %d" CLI_NL, Switcher->value.c_str(),IdxForEffectArray);
+}
+
+static int RgbEffectGetIndex(const char *Effect)
+{
+
+    for (int i = 0; i < ws2812fx.getModeCount()-8; i++)
+    {
+        if (!strcmp((const char*)ws2812fx.getModeName(i), Effect))
+        {
+            return i;
+        }
+    }
+    return 0;
+}
+
+static void WebUiRGBSwitcherCallback(Control *Switcher, int value)
+{
+    int valueFromSwitcher = Switcher->value.toInt();
+    DEBUG_PRINT("RGB Effect %s" CLI_NL, valueFromSwitcher ? "on" : "off");
+    RGBEffectStatus = valueFromSwitcher;
+    ClearedEffect = false;
+}
+
+static void WebUiRGBSliderCallback(Control *Slider, int value)
+{
+
+    float valueFromSlider = Slider->value.toFloat() * 2.55f;
+    int ID = Slider->id;
+
+    if (valueFromSlider > 255.0f)
+    {
+        valueFromSlider = 255.0f;
+    }
+    if (valueFromSlider < 0.0f)
+    {
+        valueFromSlider = 0.0f;
+    }
+
+    if (ID == WebUiRGBSliderRed)
+    {
+        NeoPixelCurrentRed = (uint8_t)(valueFromSlider);
+        DEBUG_PRINT("NeoPixel Red set to %d" CLI_NL, NeoPixelCurrentRed);
+    }
+    else if (ID == WebUiRGBSliderGreen)
+    {
+        NeoPixelCurrentGreen = (uint8_t)(valueFromSlider);
+        DEBUG_PRINT("NeoPixel Red set to %d" CLI_NL, NeoPixelCurrentGreen);
+    }
+    else if (ID == WebUiRGBSliderBlue)
+    {
+        NeoPixelCurrentBlue = (uint8_t)(valueFromSlider);
+        DEBUG_PRINT("NeoPixel Red set to %d" CLI_NL, NeoPixelCurrentBlue);
+    }
+    else if (ID == WebUiRGBSliderBrightness)
+    {
+        NeoPixelCurrentBrightness = (uint8_t)(valueFromSlider);
+        DEBUG_PRINT("NeoPixel Brightness set to %d" CLI_NL, WebUiRGBSliderBrightness);
+        ws2812fx.setBrightness(NeoPixelCurrentBrightness);
+        UpdateLeds = true;
+        return;
+    }
+    else
+    {
+        return;
+    }
+     uint32_t color = ws2812fx.Color(NeoPixelCurrentRed, NeoPixelCurrentGreen, NeoPixelCurrentBlue);
+     ws2812fx.fill(color);
+     ws2812fx.setColor(color);
+    UpdateLeds = true;
+}
+
+
+
+int ButtonNeoPixelSingleClickCallback(){
 
     if (RGBEffectStatus)
     {
         RGBEffectStatus = false;
         DEBUG_PRINT("RGB Effect off over Button" CLI_NL);
+        ClearedEffect=false;
         return 1;
     }
     ClearedEffect=false;

@@ -3,6 +3,7 @@
 #include "WebServerStatusTab.h"
 #include "WebServerUI.h"
 #include "SinricSmart.h"
+#include "TemperatureSensor.h"
 
 #define DEBUG_MSG DEBUG_MSG_LED
 
@@ -17,6 +18,9 @@ void LedWakeInit()
 
     ledcSetup(LED_WAKE_FAN_CHANNEL, LED_WAKE_FAN_FREQUENCY, LED_WAKE_FAN_RESOLUTION);
     ledcAttachPin(LED_WAKE_FAN_PIN, LED_WAKE_FAN_CHANNEL);
+
+    pinMode(LED_WAKE_RELAY_PIN, OUTPUT);
+    
 }
 
 void LedWakeSetDutyCycle(float DutyCycle)
@@ -31,12 +35,24 @@ void LedWakeSetDutyCycle(float DutyCycle)
     if (DutyCycle != 0.0f)
         DutyCycle = DutyCycle * 0.90f + 10;
 
-    if (DutyCycle > MaxPwmFromTemp)
+    if (DutyCycle > MaxPwmFromTemp){
         DutyCycle = MaxPwmFromTemp;
+        DEBUG_PRINT("Reduced max PWM of LED to: %3.2f due to too high temperature!" CLI_NL,DutyCycle);
+    }
+
+    if(!TempSensorStatus()){
+        DEBUG_PRINT("Disabling Wake LED due to error on Temp Sensor" CLI_NL);
+        DutyCycle=0.0f;
+    }
 
     WebUiLedPwmUpdateLabel(DutyCycle);
     CurrentDutyCycleOfLedMatched = DutyCycle;
-    DEBUG_PRINT("DutyCycles for PWM Driver %f" CLI_NL, DutyCycle);
+    DEBUG_PRINT("DutyCycles for PWM Driver %3.2f" CLI_NL, DutyCycle);
+    if(DutyCycle == 0.0f){
+        LED_WAKE_RELAY_OFF;
+    }else{
+        LED_WAKE_RELAY_ON;
+    }
     DutyCycle = 100.0f - DutyCycle;
     int DutyCycleValue = (int)((((float)(1 << LED_WAKE_RESOLUTION)) * DutyCycle) / 100.0f);
     ledcWrite(LED_WAKE_CHANNEL, DutyCycleValue);

@@ -7,4 +7,6 @@
 
 #define ARRAY_LEN(x) (sizeof(x)/sizeof(x[0]))
 
+#define GOOGLE_HOME_ENABLED 1
+
 #endif

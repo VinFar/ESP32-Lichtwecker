@@ -1,8 +1,9 @@
 #include "Debug.h"
+#include "CLI.h"
 
 #ifdef DEBUG
 
-DebugPrefix_t DebugPrefixes[11] = {{1, DEBUG_PREFIX_MAIN}, {1, DEBUG_PREFIX_WIFI}, {1, DEBUG_PREFIX_SNTP}, {1, DEBUG_PREFIX_LED},{1, DEBUG_PREFIX_WEBUI},{1,DEBUG_PREFIX_ALARMS},{1,DEBUG_PREFIX_TEMP},{1,DEBUG_PREFIX_BUTTON},{1,DEBUG_PREFIX_NEOPIXEL},{1,DEBUG_PREFIX_SINRIC},{1,DEBUG_PREFIX_OTA}};
+DebugPrefix_t DebugPrefixes[12] = {{1, DEBUG_PREFIX_MAIN}, {1, DEBUG_PREFIX_WIFI}, {1, DEBUG_PREFIX_SNTP}, {1, DEBUG_PREFIX_LED},{1, DEBUG_PREFIX_WEBUI},{1,DEBUG_PREFIX_ALARMS},{1,DEBUG_PREFIX_TEMP},{1,DEBUG_PREFIX_BUTTON},{1,DEBUG_PREFIX_NEOPIXEL},{1,DEBUG_PREFIX_SINRIC},{1,DEBUG_PREFIX_OTA},{1,DEBUG_PREFIX_CLI}};
 
 void DebugPrintFunction(DebugPrefix_t DebugPrefix,
                         const char *format, ...)
@@ -10,6 +11,7 @@ void DebugPrintFunction(DebugPrefix_t DebugPrefix,
     if (DebugPrefix.Enabled)
     {
         Serial.print(DebugPrefix.DebugPrefix);
+        CliWrite(DebugPrefix.DebugPrefix);
         char loc_buf[64];
         char *temp = loc_buf;
         va_list arg;
@@ -35,6 +37,7 @@ void DebugPrintFunction(DebugPrefix_t DebugPrefix,
         }
         va_end(arg);
         len = Serial.write((uint8_t *)temp, len);
+        CliWrite(temp);
         if (temp != loc_buf)
         {
             free(temp);

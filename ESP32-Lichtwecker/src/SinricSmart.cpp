@@ -17,6 +17,8 @@
 
 #define DEBUG_MSG DEBUG_MSG_NEOPIXEL
 
+#if GOOGLE_HOME_ENABLED
+
 SinricProLight &myLight = SinricPro[LIGHT_ID];
 >>>>>>> 8f376aa05ba98f37348fb990b5e0a66ab842ea6d
 
@@ -100,5 +102,6 @@ void setupSinricPro() {
 void SinricHandle(){
     SinricPro.handle();
 }
+  #endif
 
 #undef DEBUG_MSG
