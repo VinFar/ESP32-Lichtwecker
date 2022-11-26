@@ -32,3 +32,11 @@ fp-info-cache
 *.csv
 >>>>>>> PCB-V2.0
 ESP32-Lichtwecker/compile_commands.json
+KiCad/3DModels/CXB3590.ipt
+KiCad/3DModels/CXB3590.STEP
+KiCad/3DModels/neopixel_ws2812b.step
+KiCad/3DModels/NeoPixelneopixel_ws2812b.ipt
+KiCad/ControlPanelESP/ControlPanelESP.ipt
+KiCad/ControlPanelESP/ControlPCBControlPanelESP.ipt
+KiCad/ControlPanelESP/OldVersions/ControlPanelESP.0001.ipt
+KiCad/ControlPanelESP/Schaltplan/ControlPanelESP.pdf
