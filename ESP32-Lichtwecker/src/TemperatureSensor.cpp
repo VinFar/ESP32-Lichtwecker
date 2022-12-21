@@ -7,6 +7,7 @@
 #include "NeoPixel.h"
 #include <Wire.h>
 #include "mcp3221.h"
+#include "myWire.h"
 
 #define DEBUG_MSG DEBUG_MSG_TEMP
 
@@ -30,15 +31,16 @@ int TempSensorOk=false;
 
 void TempSensorInit()
 {
-    Wire.begin(SDA, SCL);
-    mcp3221.init(20, 60);
+    if(myWireSemaphoreTake(pdMS_TO_TICKS(1000)) == pdTRUE){
+        DEBUG_PRINT("Init MCP 3221" CLI_NL);
+        mcp3221.init(20, 60);
+        myWireSemaphoreGive();
+    }
 
-    uint16_t result = mcp3221.readMean();
-    float voltage = mcp3221.toVoltage(result, ref_voltage);
-    DEBUG_PRINT("ADC counts: %d" CLI_NL, result);
-    DEBUG_PRINT("ADC Voltage: %d" CLI_NL, voltage);
+}
 
-    xTaskCreatePinnedToCore(TaskTemperature, "TaskTemperature", 8000, NULL, 4, NULL, CONFIG_ARDUINO_RUNNING_CORE);
+void TaskTemperatureCreate(){
+    xTaskCreatePinnedToCore(TaskTemperature, "TaskTemperature", 8000, NULL, 3, NULL, CONFIG_ARDUINO_RUNNING_CORE);
     TempSensorWatchDogTimer = xTimerCreate("TempSensorWatchdog",pdMS_TO_TICKS(5000),pdTRUE,(void*)0,TempSensorWatchDogExpiredCallback);
     if(TempSensorWatchDogTimer != NULL){
         xTimerStart(TempSensorWatchDogTimer,pdMS_TO_TICKS(100));

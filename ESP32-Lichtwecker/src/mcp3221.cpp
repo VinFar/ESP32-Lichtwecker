@@ -1,6 +1,7 @@
 #include <Wire.h>
 #include "mcp3221.h"
 #include <Arduino.h>
+#include "myWire.h"
 
 MCP3221::MCP3221(uint8_t slave_adr) : _address(slave_adr)
 {
@@ -8,7 +9,6 @@ MCP3221::MCP3221(uint8_t slave_adr) : _address(slave_adr)
 
 MCP3221::~MCP3221(void)
 {
-    _i2c->~TwoWire();
 }
 
 void MCP3221::init(uint32_t SampleRate, uint32_t BufferLen)
@@ -29,15 +29,21 @@ uint16_t MCP3221::read()
 }
 
 uint16_t MCP3221::readFromDevice(){
-    _i2c->requestFrom(_address, 2U);
+    
+    uint16_t rv = 0xFFFF;
 
-    while(_i2c->available()<2);
+    if(myWireSemaphoreTake(pdMS_TO_TICKS(100)) == pdTRUE){
 
-    if (_i2c->available() == 2) {
-        return ((_i2c->read() << 8) | (_i2c->read()));
+        _i2c->requestFrom(_address, 2U);
+
+        while(_i2c->available()<2);
+
+        if (_i2c->available() == 2) {
+            rv = ((_i2c->read() << 8) | (_i2c->read()));
+        }
+        myWireSemaphoreGive();
     }
-
-    return 0xFFFF;
+    return rv;
 }
 
 uint16_t MCP3221::readMean()

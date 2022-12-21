@@ -59,9 +59,6 @@ void SinricSendCurrentBrightness(int Brightness){
 }
 
 void setupSinricPro() {
-  // get a new Light device from SinricPro
-  
-
   
   // set callback function to device
   myLight.onPowerState(onPowerState);

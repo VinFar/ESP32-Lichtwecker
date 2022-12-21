@@ -33,6 +33,8 @@ void DebugPrintFunction(DebugPrefix_t DebugPrefix,
 #define DEBUG_PREFIX_SINRIC		"[SINRIC] "
 #define DEBUG_PREFIX_OTA		"[OTA] "
 #define DEBUG_PREFIX_CLI		"[CLI] "
+#define DEBUG_PREFIX_DISPLAY	"[DISPLAY] "
+#define DEBUG_PREFIX_MYWIRE		"[MYWIRE] "
 
 #define DEBUG_MSG_MAIN (DebugPrefixes[0])
 #define DEBUG_MSG_WIFI (DebugPrefixes[1])
@@ -46,8 +48,10 @@ void DebugPrintFunction(DebugPrefix_t DebugPrefix,
 #define DEBUG_MSG_SINRIC (DebugPrefixes[9])
 #define DEBUG_MSG_OTA (DebugPrefixes[10])
 #define DEBUG_MSG_CLI (DebugPrefixes[11])
+#define DEBUG_MSG_DISPLAY (DebugPrefixes[12])
+#define DEBUG_MSG_MYWIRE (DebugPrefixes[13])
 
-extern DebugPrefix_t DebugPrefixes[12];
+extern DebugPrefix_t DebugPrefixes[14];
 
 
 #endif

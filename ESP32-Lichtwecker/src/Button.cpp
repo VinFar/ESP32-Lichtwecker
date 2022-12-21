@@ -23,7 +23,6 @@ void ButtonInit()
 {
 
     pinMode(BUTTON_PIN, INPUT);
-
     
     button.attachDoubleClick(ButtonDoubleClickCallback);
     button.attachClick(ButtonSingleClick);
