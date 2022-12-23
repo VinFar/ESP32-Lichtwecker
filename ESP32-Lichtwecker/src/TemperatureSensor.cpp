@@ -117,14 +117,9 @@ void TempSensorTick()
 }
 
 
-/*
- * This function calculates the maximum pwm for the LED for a given temp
- * Above 80.0°C the maximum pwm decreases with 10% per 1°C, so that the
- * maximum temp is somewhere between 80°C and 90°C.
- */
 static float TemperatureCalcMaxPWM(float Temp)
 {
-    if (Temp > 90.0f)
+    if (Temp >115.0f)
         return 0.0f;
     if (Temp < 0.0f)
         return 50.0f;
@@ -133,7 +128,7 @@ static float TemperatureCalcMaxPWM(float Temp)
 
     float pwm;
 
-    pwm = -10 * Temp + 800;
+    pwm = -9 * Temp + 1000;
 
     if (pwm > 100.0f)
         return 100.0f;
@@ -146,7 +141,7 @@ static float TemperatureCalcMaxPWM(float Temp)
 static float TemperatureCalcFanPower(float Temp)
 {
 
-    float pwm = 3.333 * Temp - 166.666;
+    float pwm = 3.333 * Temp - 266.666;
 
     if (pwm < 0)
         pwm = 0.0f;
