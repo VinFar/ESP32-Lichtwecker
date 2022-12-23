@@ -216,7 +216,7 @@ int AlarmLedOffTimerGet()
 void AlarmLedOffTimerSaveToNVS()
 {
     prefs.begin(AlarmPrefsLedPowerOffTimer);
-    // prefs.putInt(AlarmPrefsLedPowerOffTimer, AlarmLedOffTimerValue);
+    prefs.putInt(AlarmPrefsLedPowerOffTimer, AlarmLedOffTimerValue);
     prefs.end();
     NeoPixelBlinkForFeedback(0,255,0);
 
