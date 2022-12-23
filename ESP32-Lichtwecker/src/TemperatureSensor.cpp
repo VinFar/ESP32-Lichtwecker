@@ -9,12 +9,16 @@
 #include "mcp3221.h"
 #include "myWire.h"
 #include "Display.h"
+#include "AlarmTask.h"
 
 #define DEBUG_MSG DEBUG_MSG_TEMP
 
 MCP3221 mcp3221(ADC_I2C_ADDRESS);
 const uint8_t address = ADC_I2C_ADDRESS;
 const uint16_t ref_voltage = 4086;  // in mV
+
+const char *FanPowerPrefNameSpace = "FanPower";
+float MaxFanPower;
 
 TimerHandle_t TempSensorWatchDogTimer=NULL;
 
@@ -25,6 +29,7 @@ static void TempSensorOkCallback();
 static void TempSensorNotOkCallback();
 void TempSensorWatchDogExpiredCallback(TimerHandle_t TimerID);
 void TemperatureSensorRead();
+static void FanPowerPrefsRead();
 
 float CurrentTemp;
 String TemperatureString = "-20.00";
@@ -37,6 +42,7 @@ void TempSensorInit()
         mcp3221.init(20, 60);
         myWireSemaphoreGive();
     }
+    FanPowerPrefsRead();
 
 }
 
@@ -148,7 +154,39 @@ static float TemperatureCalcFanPower(float Temp)
     if (pwm > 100.0f)
         pwm = 100.0f;
 
+    if(pwm > MaxFanPower){
+        pwm = MaxFanPower;
+    }
+
     return pwm;
+}
+
+void FanPrefsSaveToNvs(){
+  DEBUG_PRINT("Saved Fan Power to NVS" CLI_NL);
+  prefs.begin(FanPowerPrefNameSpace);
+  prefs.putBytes(FanPowerPrefNameSpace, &MaxFanPower, sizeof(MaxFanPower));
+  prefs.end();
+
+}
+
+static void FanPowerPrefsRead()
+{
+    prefs.begin(FanPowerPrefNameSpace);
+    //prefs.putBytes(FanPowerPrefNameSpace, &MaxFanPower, sizeof(MaxFanPower));
+    if(!prefs.getBytes(FanPowerPrefNameSpace, &MaxFanPower, sizeof(MaxFanPower))){
+        NeoPixelShowStatusError();
+    }
+    DEBUG_PRINT("Fan Power from NVS: %3.0f %" CLI_NL, MaxFanPower);
+    prefs.end();
+}
+
+float MaxFanPowerGet(){
+    return MaxFanPower;
+}
+
+float MaxFanPowerSet(float NewValue){
+    MaxFanPower = NewValue;
+    return MaxFanPower;
 }
 
 #undef DEBUG_MSG

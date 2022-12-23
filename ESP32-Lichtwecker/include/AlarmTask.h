@@ -40,6 +40,7 @@ extern Alarm_t Alarms[7];
 extern Preferences prefs;
 extern const char *AlarmPrefsNameSpace;
 extern const char *AlarmPrefAlarmStatus;
+extern const char *FanPowerPrefNameSpace;
 
 void AlarmTaskInitPrefs();
 void TaskAlarm(void *arg);

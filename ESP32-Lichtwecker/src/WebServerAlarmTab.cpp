@@ -5,6 +5,7 @@
 #include "AlarmTask.h"
 #include "myLED.h"
 #include "NeoPixel.h"
+#include "TemperatureSensor.h"
 
 #define DEBUG_MSG DEBUG_MSG_WEBUI
 
@@ -17,6 +18,7 @@ static const char *WebUiAlarmSaveTime = "Weckzeit speichern";
 static const char *WebUiAlarmTimeIntervall = "Zeit Intervall zum Wecken (min)";
 static const char *WebUiAlarmLedPower = "Lichtstärke zum Wecken (%)";
 static const char *WebUiAlarmLedOffTimeLabel ="LED Einschaltzeit nach Wecker (min)";
+static const char *WebUiAlarmFanPowerLabel ="Maximale Lüfter Leistung (%)";
 
 static void
 AlarmOnOffSwitchCallback(Control *Button, int value);
@@ -28,10 +30,12 @@ static void AlarmLedPowerSliderCallback(Control *Select, int type);
 static void AlarmLedPowerTimeoutCallback(TimerHandle_t xTimer);
 static void AlarmLedTimeIntervallCallback(Control *Select, int type);
 static void AlarmLedOffTimerNumberCallback(Control *Select,int type);
+static void AlarmMaxFanSliderCallback(Control *Select, int type);
 
 uint16_t WebUiAlarmTab;
 uint16_t WebUiAlarmStatusSwitcherId;
 uint16_t WebUiAlarmLedPowerSliderId;
+uint16_t WebUiAlarmFanPowerSliderId;
 uint16_t WebUiAlarmTimeIntervalId;
 uint16_t WebUiAlarmLedPowerOffNumberId;
 TimerHandle_t TimerLedPowerTimeoutHandle;
@@ -46,7 +50,9 @@ void WebUiAlarmTabInit()
   WebUiAlarmLedPowerSliderId = ESPUI.addControl(ControlType::Slider, WebUiAlarmLedPower, LedPowerString, ControlColor::Alizarin, WebUiAlarmTab, &AlarmLedPowerSliderCallback);
   WebUiAlarmTimeIntervalId= ESPUI.addControl(ControlType::Number, WebUiAlarmTimeIntervall, "", ControlColor::Alizarin, WebUiAlarmTab, &AlarmLedTimeIntervallCallback);
   WebUiAlarmLedPowerOffNumberId = ESPUI.addControl(ControlType::Number,WebUiAlarmLedOffTimeLabel,"",ControlColor::Alizarin,WebUiAlarmTab,&AlarmLedOffTimerNumberCallback);
-  
+
+  String FanPowerString = String(MaxFanPowerGet(),0);
+  WebUiAlarmFanPowerSliderId = ESPUI.addControl(ControlType::Slider, WebUiAlarmFanPowerLabel, FanPowerString, ControlColor::Alizarin, WebUiAlarmTab, &AlarmMaxFanSliderCallback);
 
   TimerLedPowerTimeoutHandle = xTimerCreate("LedPowerTimeoutTimer", pdMS_TO_TICKS(5000), 0, (void *)0, AlarmLedPowerTimeoutCallback);
 
@@ -208,6 +214,14 @@ static void AlarmLedPowerSliderCallback(Control *Select, int type)
   {
     AlarmSetLedPower(i, Select->value.toFloat());
   }
+}
+
+static void AlarmMaxFanSliderCallback(Control *Select, int type)
+{
+  DEBUG_PRINT("Fan Power Slider set to %3.2f" CLI_NL, Select->value.toFloat());
+  ESPUI.updateSlider(WebUiAlarmLedPowerSliderId,Select->value.toInt());
+  MaxFanPowerSet(Select->value.toFloat());
+  FanPrefsSaveToNvs();
 }
 
 static void AlarmLedTimeIntervallCallback(Control *Select, int type)

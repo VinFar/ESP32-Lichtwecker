@@ -15,5 +15,7 @@ void TempSensorTick();
 int TempSensorStatus();
 float TemperatureSensorGetTempC();
 void TaskTemperatureCreate();
-
+void FanPrefsSaveToNvs();
+float MaxFanPowerGet();
+float MaxFanPowerSet(float NewValue);
 #endif
