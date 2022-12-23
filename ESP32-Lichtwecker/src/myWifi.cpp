@@ -7,6 +7,7 @@
 #include "SinricSmart.h"
 #include "OTA.h"
 #include "CLI.h"
+#include "Display.h"
 
 #define DEBUG_MSG DEBUG_MSG_WIFI
 
@@ -54,6 +55,7 @@ static void WifiConnectedCallback(){
   DEBUG_PRINT("SSID: %s" CLI_NL,WiFi.SSID());
   IPAddress ip = WiFi.localIP();
   DEBUG_PRINT("IP Address: %d.%d.%d.%d" CLI_NL,ip[0],ip[1],ip[2],ip[3]);
+  DisplaySetIPAddress(ip);
   vTaskDelay(pdMS_TO_TICKS(1000));
   xTaskCreatePinnedToCore(TaskWebUI,"TaskWebUI",8000,NULL,2,NULL,CONFIG_ARDUINO_RUNNING_CORE);
   xTaskCreatePinnedToCore(TaskSNTP,"TaskSNTP",8000,NULL,1,NULL,CONFIG_ARDUINO_RUNNING_CORE);
@@ -69,6 +71,7 @@ static void WifiDisconnectedCallback(){
   DEBUG_PRINT("Starting AutoConnect\n");
   NeoPixelShowStatusError();
   vTaskDelete(TaskSNTPHandleGet());
+  DisplaySetIPAddress(IPAddress(0,0,0,0));
   WifiManager.autoConnect("","",5,5000);
 }
 

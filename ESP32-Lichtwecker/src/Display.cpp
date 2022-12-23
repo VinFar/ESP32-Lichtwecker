@@ -1,5 +1,9 @@
 #include "Display.h"
 #include "myWire.h"
+#include "myWifi.h"
+#include "IPAddress.h"
+#include "SinricSmart.h"
+#include "TemperatureSensor.h"
 
 #define DEBUG_MSG DEBUG_MSG_DISPLAY
 
@@ -50,16 +54,10 @@ void DisplayInit()
         }
         DEBUG_PRINT("HGere1" CLI_NL);
         display.setRotation(2);
-        display.display();
-        vTaskDelay(pdMS_TO_TICKS(2000));
-
         display.clearDisplay();
 
-        display.setTextSize(2); // Draw 2X-scale text
+        display.setTextSize(1); // Draw 2X-scale text
         display.setTextColor(SSD1306_WHITE);
-        display.setCursor(10, 0);
-        display.println(F("scroll"));
-        display.display(); // Show initial text
         myWireSemaphoreGive();
     }else{
         DEBUG_PRINT("Could not acquire Semaphore" CLI_NL);
@@ -72,8 +70,104 @@ void DisplayTick()
     if ((_LastMillis + _MillisInterval) < millis())
     {
         _LastMillis = millis();
-            display.display();
+        DisplaySetStatus(SinricStatus(), WifiGetStatus(), TempSensorStatus());
+        display.display();
     }
+}
+
+void DisplaySetIPAddress(IPAddress ip){
+
+    int16_t x1, y1;
+    uint16_t w, h;
+    String IPString = "IP: " + ip.toString();
+
+    display.getTextBounds(IPString, 0, 0, &x1, &y1, &w, &h);
+
+    w = display.width();
+
+    DEBUG_PRINT("Setting IP Address on Display: %d.%d.%d.%d" CLI_NL,ip[0],ip[1],ip[2],ip[3]);
+
+    display.setCursor(0,0);
+    display.fillRect(x1, y1, w, h, BLACK);
+    display.print(IPString);
+
+}
+
+void DisplaySetTemperature(float Temperature){
+
+    int16_t x1;
+    int16_t y1;
+    uint16_t w;
+    uint16_t h;
+    String TempString = "Temp: " + String(Temperature, 2) + " C";
+
+    display.getTextBounds(TempString, 0, 10, &x1, &y1, &w, &h);
+
+    w = display.width();
+
+    display.fillRect(x1, y1, w, h, BLACK);
+    display.setCursor(0,10);
+    display.print(TempString);
+}
+
+void DisplaySetPower(float Power){
+
+    int16_t x1;
+    int16_t y1;
+    uint16_t w;
+    uint16_t h;
+    String TempString = "Power: " + String(Power, 2) + " %";
+
+    display.getTextBounds(TempString, 0, 20, &x1, &y1, &w, &h);
+
+    w = display.width();
+
+    display.fillRect(x1, y1, w, h, BLACK);
+    display.setCursor(0,20);
+    display.print(TempString);
+}
+
+void DisplaySetStatus(uint8_t Sinric, uint8_t Wifi, uint8_t Temp){
+
+    int16_t x1;
+    int16_t y1;
+    uint16_t w;
+    uint16_t h;
+    String WifiString = "NOK";
+    String TempString = "NOK";
+    String SinricString = "NOK";
+
+    if(Wifi){
+        WifiString = "OK";
+    }
+
+    if(Sinric){
+        SinricString = "OK";
+    }
+
+    if(Temp){
+        TempString = "OK";
+    }
+
+    String String1 = "Wifi: " + WifiString + " | Temp: " + TempString;
+    String String2 = "Sinric: " + SinricString;
+
+    display.getTextBounds(String1, 0, 30, &x1, &y1, &w, &h);
+
+    w = display.width();
+
+    display.fillRect(x1, y1, w, h, BLACK);
+    display.setCursor(0,30);
+    display.print(String1);
+
+    display.getTextBounds(String2, 0, 40, &x1, &y1, &w, &h);
+
+    w = display.width();
+
+    display.fillRect(x1, y1, w, h, BLACK);
+    display.setCursor(0,40);
+    display.print(String2);
+
 }
 
 

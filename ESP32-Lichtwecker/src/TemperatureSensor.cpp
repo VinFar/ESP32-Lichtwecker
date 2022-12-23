@@ -8,6 +8,7 @@
 #include <Wire.h>
 #include "mcp3221.h"
 #include "myWire.h"
+#include "Display.h"
 
 #define DEBUG_MSG DEBUG_MSG_TEMP
 
@@ -70,6 +71,7 @@ void TemperatureSensorRead(){
     if (CurrentTemp != TEMP_ERROR)
     {
         //DEBUG_PRINT("Temperature: %3.2f°C" CLI_NL, CurrentTemp);
+        DisplaySetTemperature(CurrentTemp);
         TemperatureString = String(CurrentTemp, 2);
         if (WebUiIsStarted())
         {

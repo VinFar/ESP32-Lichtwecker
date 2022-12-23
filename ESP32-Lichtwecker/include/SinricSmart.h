@@ -4,5 +4,6 @@
 void setupSinricPro();
 void SinricHandle();
 void SinricSendCurrentBrightness(int Brightness);
+uint8_t SinricStatus();
 
 #endif

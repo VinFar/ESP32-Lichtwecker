@@ -8,5 +8,9 @@
 
 void DisplayInit();
 void DisplayTick();
+void DisplaySetIPAddress(IPAddress ip);
+void DisplaySetTemperature(float Temperature);
+void DisplaySetPower(float Power);
+void DisplaySetStatus(uint8_t Sinric, uint8_t Wifi, uint8_t Temp);
 
 #endif

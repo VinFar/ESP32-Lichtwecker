@@ -4,6 +4,7 @@
 #include "WebServerUI.h"
 #include "SinricSmart.h"
 #include "TemperatureSensor.h"
+#include "Display.h"
 
 #define DEBUG_MSG DEBUG_MSG_LED
 
@@ -31,6 +32,8 @@ void LedWakeSetDutyCycle(float DutyCycle)
     if (DutyCycle > 100.0f)
         DutyCycle = 100.0f;
 
+    DisplaySetPower(DutyCycle);
+    WebUiLedPwmUpdateLabel(DutyCycle);
     CurrentDutyCycleOfLed = DutyCycle;
     if (DutyCycle != 0.0f)
         DutyCycle = DutyCycle * 0.90f + 10;
@@ -45,7 +48,6 @@ void LedWakeSetDutyCycle(float DutyCycle)
         DutyCycle=0.0f;
     }
 
-    WebUiLedPwmUpdateLabel(DutyCycle);
     CurrentDutyCycleOfLedMatched = DutyCycle;
     DEBUG_PRINT("DutyCycles for PWM Driver %3.2f" CLI_NL, DutyCycle);
     if(DutyCycle == 0.0f){

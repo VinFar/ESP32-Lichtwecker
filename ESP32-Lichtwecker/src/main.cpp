@@ -44,6 +44,7 @@ void TaskInit(void *arg){
 
   Wire.begin(SDA, SCL);
   myWireInit();
+  DisplayInit();
   TempSensorInit();
   NeoPixelInit();
   LedWakeInit();
@@ -51,7 +52,6 @@ void TaskInit(void *arg){
   LedWakeFanSetDutyCycle(100.0f);
   ButtonInit();
   AlarmTaskInitPrefs();
-  DisplayInit();
 
   xTaskCreatePinnedToCore(TaskWifi, "TaskWifi", 4000, NULL, 1, NULL, CONFIG_ARDUINO_RUNNING_CORE);
   TaskTemperatureCreate();

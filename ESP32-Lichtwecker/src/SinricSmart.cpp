@@ -76,6 +76,11 @@ void setupSinricPro() {
 void SinricHandle(){
     SinricPro.handle();
 }
-  #endif
+
+uint8_t SinricStatus(){
+  return SinricPro.isConnected();
+}
+
+#endif
 
 #undef DEBUG_MSG
